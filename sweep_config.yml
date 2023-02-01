@@ -1,0 +1,11 @@
+method: bayes
+metric:
+  goal: maximize
+  name: rollout/ep_rew_mean
+parameters:
+  learning_rate:
+    distribution: uniform
+    max: 5e-3
+    min: 1e-3
+
+program: experiment.py

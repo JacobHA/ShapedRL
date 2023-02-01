@@ -1,0 +1,7 @@
+/local_tmp
+/outfiles
+/__pycache__
+/logs
+/models
+/wandb
+*.sif
