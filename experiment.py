@@ -21,6 +21,7 @@ def shaping(apply_shaping=True, env_name="FrozenLake-v1",
             },
             sync_tensorboard=True
     ) as run:
+        config = wandb.config
 
         cb = WandbCallback(
             gradient_save_freq=15000,
@@ -32,7 +33,7 @@ def shaping(apply_shaping=True, env_name="FrozenLake-v1",
         model = ShapedSAC(
             policy="MlpPolicy",
             env=env,
-            learning_rate=learning_rate,  # config.learning_rate,
+            learning_rate=config.learning_rate,
             gamma=gamma,
             buffer_size=50000,
             ent_coef=ent_coef,
@@ -51,8 +52,8 @@ if __name__ == "__main__":
 
     def wandb_func():
         # Based on https://openreview.net/pdf?id=HJjvxl-Cb
-        shaping(apply_shaping=1, env_name='Swimmer-v3',
-                learning_rate=3e-4, train_steps=1_500_000, gamma=0.99, ent_coef=1/100)
+        shaping(apply_shaping=1, env_name='Reacher-v2',
+                train_steps=1_000_000, gamma=0.99, ent_coef=1/100)
 
     wandb.agent(sweepid, function=wandb_func, count=1)
     wandb.finish()
