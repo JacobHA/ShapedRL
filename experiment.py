@@ -6,7 +6,8 @@ from utils import make_new_sweep, configured_model
 PROJ = experiment['PROJ']
 model = experiment['ALGO']
 env_name = experiment['ENV']
-
+sweep_id = experiment['SWEEPID']
+count = experiment['COUNT']
 
 def shaping(train_steps=1_000_000):
 
