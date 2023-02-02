@@ -8,6 +8,8 @@ model = experiment['ALGO']
 env_name = experiment['ENV']
 sweep_id = experiment['SWEEPID']
 count = experiment['COUNT']
+train_steps = experiment['TRAIN_STEPS']
+
 
 def shaping(train_steps=1_000_000):
 
@@ -31,6 +33,6 @@ if __name__ == "__main__":
         sweep_id = args.sweep_id
 
     def wandb_func():
-        shaping(train_steps=100_000)
+        shaping(train_steps=train_steps)
 
     wandb.agent(sweep_id, function=wandb_func, count=args.count)
