@@ -49,6 +49,8 @@ def configured_model(config):
                           buffer_size=int(config.buffer_size),
                           exploration_fraction=config.exploration_fraction,
                           exploration_final_eps=config.exploration_final_eps,
+                          gamma=gamma,
+                          shaped=config.shaped,
                           tensorboard_log="./logs/")
 
     elif algo_str == "ShapedSAC":
