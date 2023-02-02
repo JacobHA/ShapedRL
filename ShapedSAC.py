@@ -7,9 +7,9 @@ import numpy as np
 
 class ShapedSAC(SAC):
 
-    def __init__(self, *args, shape: bool = False, **kwargs):
+    def __init__(self, *args, shaped: int = 0, **kwargs):
         super(ShapedSAC, self).__init__(*args, **kwargs)
-        self.shape = shape
+        self.shaped = shaped
 
     def train(self, gradient_steps: int, batch_size: int = 64) -> None:
         # Switch to train mode (this affects batch norm / dropout)
@@ -79,7 +79,7 @@ class ShapedSAC(SAC):
                     ent_coef * next_log_prob.reshape(-1, 1)
                 # td error + entropy term
                 rewards = replay_data.rewards
-                if self.shape:
+                if self.shaped:
                     # Get the current ent_coef
                     try:
                         # If alpha is being learned, detach it

@@ -1,3 +1,7 @@
+import random
+
+import yaml
+
 import wandb
 import gym
 from stable_baselines3.dqn.dqn import DQN
@@ -6,30 +10,20 @@ from wandb.integration.sb3 import WandbCallback
 import argparse
 
 
-def shaping(apply_shaping=True, env_name="FrozenLake-v1",
-            learning_rate=0.0001,
+PROJ = "SAC-mujoco"
+ENTITY = "reward-shapers"
+
+
+def shaping(env_name="FrozenLake-v1",
             gamma=0.99, ent_coef='auto',
-            is_slippery=False, train_steps=1000000):
+            train_steps=1000000):
 
     env = gym.make(env_name)
 
     with wandb.init(
-            config={
-                "env_name": env_name,
-                "shaped": apply_shaping,
-                "is_slippery": is_slippery,
-            },
-            sync_tensorboard=True
-    ) as run:
+            sync_tensorboard=True,
+            project=PROJ) as run:
         config = wandb.config
-
-        cb = WandbCallback(
-            gradient_save_freq=15000,
-            model_save_path=f"models/{env_name}.pkl",
-            verbose=2,
-        )
-        cb = None
-
         model = ShapedSAC(
             policy="MlpPolicy",
             env=env,
@@ -37,23 +31,34 @@ def shaping(apply_shaping=True, env_name="FrozenLake-v1",
             gamma=gamma,
             buffer_size=50000,
             ent_coef=ent_coef,
-            shape=apply_shaping,
+            shaped=config.shaped,
             tensorboard_log="./logs/",)
 
-        model.learn(total_timesteps=train_steps, callback=cb)
+        model.learn(total_timesteps=train_steps, callback=None)
+
+
+def make_new_sweep():
+    # load yaml config
+    with open("sweep_config.yml", "r") as f:
+        sweep_config = yaml.safe_load(f)
+    sweep_id = wandb.sweep(sweep_config, project=PROJ, entity=ENTITY)
+    return sweep_id
 
 
 if __name__ == "__main__":
-    # Parse in the sweepid args
     parser = argparse.ArgumentParser()
-    parser.add_argument('--sweepid', type=str, default=None)
+    parser.add_argument("--sweep_id", type=str, default=None)
+    parser.add_argument("--count", type=int, default=10)
     args = parser.parse_args()
-    sweepid = args.sweepid
+    if args.sweep_id is None:
+        sweep_id = make_new_sweep()
+    else:
+        sweep_id = args.sweep_id
 
     def wandb_func():
         # Based on https://openreview.net/pdf?id=HJjvxl-Cb
-        shaping(apply_shaping=1, env_name='Reacher-v2',
+        shaping(env_name='Reacher-v2',
                 train_steps=1_000_000, gamma=0.99, ent_coef=1/100)
 
-    wandb.agent(sweepid, function=wandb_func, count=1)
-    wandb.finish()
+    wandb.agent(sweep_id, function=wandb_func, count=args.count)
+

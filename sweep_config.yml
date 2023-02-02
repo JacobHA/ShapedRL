@@ -7,5 +7,7 @@ parameters:
     distribution: uniform
     max: 5e-3
     min: 1e-3
+  shaped:
+    values: [0, 1]
 
 program: experiment.py
