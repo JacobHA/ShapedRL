@@ -37,9 +37,11 @@ def shaping(env_name="FrozenLake-v1",
         model.learn(total_timesteps=train_steps, callback=None)
 
 
-def make_new_sweep():
+def make_new_sweep(yaml_file='sac_sweep.yml'):
     # load yaml config
-    with open("sweep_config.yml", "r") as f:
+    # Concatenate with sweep_configs folder:
+    filename = f'sweep_configs/{yaml_file}'
+    with open(filename, "r") as f:
         sweep_config = yaml.safe_load(f)
     sweep_id = wandb.sweep(sweep_config, project=PROJ, entity=ENTITY)
     return sweep_id
@@ -56,9 +58,8 @@ if __name__ == "__main__":
         sweep_id = args.sweep_id
 
     def wandb_func():
-        # Based on https://openreview.net/pdf?id=HJjvxl-Cb
+        # Hyperparams were based on https://openreview.net/pdf?id=HJjvxl-Cb
         shaping(env_name='Reacher-v2',
-                train_steps=1_000_000, gamma=0.99, ent_coef=1/100)
+                train_steps=150_000, gamma=0.99, ent_coef=1/100)
 
     wandb.agent(sweep_id, function=wandb_func, count=args.count)
-
