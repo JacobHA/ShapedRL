@@ -40,10 +40,11 @@ source /etc/profile
 echo "starting task $SLURM_ARRAY_TASK_ID"
 echo "using $SLURM_CPUS_ON_NODE CPUs"
 echo `date`
-SWEEPID="reward-shapers/SAC-mujoco/x59llkxg"
+SWEEPID="reward-shapers/SAC-mujoco/g3tvvhat"
+# SWEEPID="reward-shapers/TD3-control/"
 
 module load singularity-3.6.4-gcc-9.3.0-4zf6tdh
-singularity exec --nv --bind ./local_tmp:/tmp mujoco-py38.sif python experiment.py --sweep_id $SWEEPID
+singularity exec --nv --bind ./local_tmp:/tmp mujoco-py38.sif python experiment.py --sweep_id $SWEEPID --count 3
 
 # Diagnostic/Logging Information
 echo "Finish Run"

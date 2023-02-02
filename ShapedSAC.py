@@ -74,6 +74,8 @@ class ShapedSAC(SAC):
                 next_q_values = th.cat(self.critic_target(
                     replay_data.next_observations, next_actions), dim=1)
                 next_q_values, _ = th.min(next_q_values, dim=1, keepdim=True)
+                curr_q_values, _ = th.min(
+                    th.cat(current_q_values, dim=1), dim=1, keepdim=True)
                 # add entropy term
                 next_q_values = next_q_values - \
                     ent_coef * next_log_prob.reshape(-1, 1)
@@ -91,9 +93,10 @@ class ShapedSAC(SAC):
                     # of the next q values:
                     next_v = alpha * \
                         th.logsumexp(next_q_values/alpha, dim=1, keepdim=True)
-                    curr_v = alpha * th.logsumexp(
-                        current_q_values[0]/alpha, dim=1, keepdim=True)
-                    rewards += self.gamma * next_v - curr_v
+                    # curr_v = alpha * th.logsumexp(
+                    #     current_q_values[0]/alpha, dim=1, keepdim=True)
+
+                    rewards += self.gamma * next_v - curr_q_values
 
                 target_q_values = replay_data.rewards + \
                     (1 - replay_data.dones) * self.gamma * next_q_values

@@ -29,8 +29,11 @@ def shaping(env_name="FrozenLake-v1",
             env=env,
             learning_rate=config.learning_rate,
             gamma=gamma,
-            buffer_size=50000,
+            buffer_size=int(config.buffer_size),
             ent_coef=ent_coef,
+            batch_size=int(config.batch_size),
+            learning_starts=int(config.learning_starts),
+            tau=config.tau,
             shaped=config.shaped,
             tensorboard_log="./logs/",)
 
@@ -60,6 +63,6 @@ if __name__ == "__main__":
     def wandb_func():
         # Hyperparams were based on https://openreview.net/pdf?id=HJjvxl-Cb
         shaping(env_name='Reacher-v2',
-                train_steps=150_000, gamma=0.99, ent_coef=1/100)
+                train_steps=50_000, gamma=0.99, ent_coef=1/100)
 
     wandb.agent(sweep_id, function=wandb_func, count=args.count)
