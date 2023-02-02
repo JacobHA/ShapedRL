@@ -4,9 +4,9 @@ metric:
   name: rollout/ep_rew_mean
 parameters:
   learning_rate:
-    distribution: log_uniform
-    max: -2
-    min: -7
+    distribution: log_uniform_values
+    max: 1e-3
+    min: 1e-7
   shaped:
     values: [0, 1]
   buffer_size:

@@ -29,7 +29,7 @@
 #SBATCH --export=NONE
 
 # Can comment this out (for single node jobs)
-#SBATCH --array=1-5
+#SBATCH --array=1-10
 
 # Put your job commands here, including loading any needed
 # modules or diagnostic echos. Needed for GPU partitions:
@@ -40,11 +40,11 @@ source /etc/profile
 echo "starting task $SLURM_ARRAY_TASK_ID"
 echo "using $SLURM_CPUS_ON_NODE CPUs"
 echo `date`
-SWEEPID="reward-shapers/SAC-mujoco/g3tvvhat"
-# SWEEPID="reward-shapers/TD3-control/"
+# SWEEPID="reward-shapers/SAC-mujoco/g3tvvhat"
+SWEEPID="reward-shapers/TD3-mujoco/nnlahd9g"
 
 module load singularity-3.6.4-gcc-9.3.0-4zf6tdh
-singularity exec --nv --bind ./local_tmp:/tmp mujoco-py38.sif python experiment.py --sweep_id $SWEEPID --count 3
+singularity exec --nv --bind ./local_tmp:/tmp mujoco-py38.sif python experiment.py --sweep_id $SWEEPID --count 5
 
 # Diagnostic/Logging Information
 echo "Finish Run"

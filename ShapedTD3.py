@@ -27,6 +27,10 @@ class ShapedTD3(TD3):
             replay_data = self.replay_buffer.sample(
                 batch_size, env=self._vec_normalize_env)
 
+            # Get current Q-values estimates for each critic network
+            current_q_values = self.critic(
+                replay_data.observations, replay_data.actions)
+
             with th.no_grad():
                 # Select action according to policy and add clipped noise
                 noise = replay_data.actions.clone().data.normal_(0, self.target_policy_noise)
@@ -39,21 +43,18 @@ class ShapedTD3(TD3):
                 next_q_values = th.cat(self.critic_target(
                     replay_data.next_observations, next_actions), dim=1)
                 next_q_values, _ = th.min(next_q_values, dim=1, keepdim=True)
-                
-                curr_q_values = self.policy.q_net(replay_data.observations)
-                curr_v_max, _ = curr_q_values.max(dim=1, keepdim=True)
-                # next_v_min, _ = next_q_values.min(dim=1, keepdim=True)
+
+                current_q_vals = th.cat(current_q_values, dim=1)
+                current_q_vals, _ = th.min(current_q_vals, dim=1, keepdim=True)
+                curr_v_max, _ = current_q_vals.max(dim=1, keepdim=True)
+
                 next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
                 rewards = replay_data.rewards
-                if self.shape:
+                if self.shaped:
                     rewards += self.gamma * next_v_max - curr_v_max
 
                 target_q_values = rewards + \
                     (1 - replay_data.dones) * self.gamma * next_q_values
-
-            # Get current Q-values estimates for each critic network
-            current_q_values = self.critic(
-                replay_data.observations, replay_data.actions)
 
             # Compute critic loss
             critic_loss = sum(F.mse_loss(current_q, target_q_values)
