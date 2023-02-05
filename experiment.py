@@ -1,5 +1,5 @@
 import wandb
-import gym
+import os
 import argparse
 from config import experiment
 from utils import make_new_sweep, configured_model
@@ -23,6 +23,7 @@ def shaping(train_steps=1_000_000):
 
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--sweep_id", type=str, default=None)
     parser.add_argument("--count", type=int, default=10)

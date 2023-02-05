@@ -11,6 +11,7 @@ env = experiment['ENV']
 gamma = experiment['GAMMA']
 algo = experiment['ALGO']
 
+
 try:
     ent_coef = experiment['ENT_COEF']
 except KeyError:
@@ -41,16 +42,19 @@ def make_new_sweep():
 
 def configured_model(config):
     """ Return a wandb configured model."""
+    try:
+        shaped = experiment['SHAPED']
+    except KeyError:
+        shaped = config.shaped
     if algo_str == "ShapedDQN":
         model = ShapedDQN("MlpPolicy", env, verbose=0,
-                          shaped=config.apply_shaping,
                           learning_rate=config.learning_rate,
                           batch_size=int(config.batch_size),
                           buffer_size=int(config.buffer_size),
                           exploration_fraction=config.exploration_fraction,
                           exploration_final_eps=config.exploration_final_eps,
                           gamma=gamma,
-                          shaped=config.shaped,
+                          shaped=shaped,
                           tensorboard_log="./logs/")
 
     elif algo_str == "ShapedSAC":
@@ -62,7 +66,7 @@ def configured_model(config):
                           batch_size=int(config.batch_size),
                           learning_starts=int(config.learning_starts),
                           tau=config.tau,
-                          shaped=config.shaped,
+                          shaped=shaped,
                           tensorboard_log="./logs/",)
 
     elif algo_str == "ShapedTD3":
@@ -73,7 +77,7 @@ def configured_model(config):
                           batch_size=int(config.batch_size),
                           learning_starts=int(config.learning_starts),
                           tau=config.tau,
-                          shaped=config.shaped,
+                          shaped=shaped,
                           tensorboard_log="./logs/",)
     else:
         raise ValueError(f"Invalid algorithm name: {algo_str}")
