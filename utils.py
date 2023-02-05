@@ -46,11 +46,37 @@ def configured_model(config):
         shaped = experiment['SHAPED']
     except KeyError:
         shaped = config.shaped
+
+    try:
+        learning_rate = experiment['LEARNING_RATE']
+    except KeyError:
+        learning_rate = config.learning_rate
+
+    try:
+        buffer_size = int(experiment['BUFFER_SIZE'])
+    except KeyError:
+        buffer_size = int(config.buffer_size)
+
+    try:
+        batch_size = int(experiment['BATCH_SIZE'])
+    except KeyError:
+        batch_size = int(config.batch_size)
+
+    try:
+        learning_starts = experiment['LEARNING_STARTS']
+    except KeyError:
+        learning_starts = config.learning_starts
+
+    try:
+        tau = experiment['TAU']
+    except KeyError:
+        tau = config.tau
+
     if algo_str == "ShapedDQN":
         model = ShapedDQN("MlpPolicy", env, verbose=0,
-                          learning_rate=config.learning_rate,
-                          batch_size=int(config.batch_size),
-                          buffer_size=int(config.buffer_size),
+                          learning_rate=learning_rate,
+                          batch_size=batch_size,
+                          buffer_size=buffer_size,
                           exploration_fraction=config.exploration_fraction,
                           exploration_final_eps=config.exploration_final_eps,
                           gamma=gamma,
@@ -59,24 +85,24 @@ def configured_model(config):
 
     elif algo_str == "ShapedSAC":
         model = ShapedSAC("MlpPolicy", env, verbose=0,
-                          learning_rate=config.learning_rate,
+                          learning_rate=learning_rate,
                           gamma=gamma,
-                          buffer_size=int(config.buffer_size),
+                          buffer_size=buffer_size,
                           ent_coef=ent_coef,
-                          batch_size=int(config.batch_size),
-                          learning_starts=int(config.learning_starts),
-                          tau=config.tau,
+                          batch_size=batch_size,
+                          learning_starts=learning_starts,
+                          tau=tau,
                           shaped=shaped,
                           tensorboard_log="./logs/",)
 
     elif algo_str == "ShapedTD3":
         model = ShapedTD3("MlpPolicy", env, verbose=0,
-                          learning_rate=config.learning_rate,
+                          learning_rate=learning_rate,
                           gamma=gamma,
-                          buffer_size=int(config.buffer_size),
-                          batch_size=int(config.batch_size),
-                          learning_starts=int(config.learning_starts),
-                          tau=config.tau,
+                          buffer_size=buffer_size,
+                          batch_size=batch_size,
+                          learning_starts=learning_starts,
+                          tau=tau,
                           shaped=shaped,
                           tensorboard_log="./logs/",)
     else:

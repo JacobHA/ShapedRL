@@ -28,12 +28,24 @@ if __name__ == "__main__":
     parser.add_argument("--sweep_id", type=str, default=None)
     parser.add_argument("--count", type=int, default=10)
     args = parser.parse_args()
-    if args.sweep_id is None:
-        sweep_id = make_new_sweep()
-    else:
-        sweep_id = args.sweep_id
+
+    # There are three methods of getting a sweep id:
+    # 1. If you have a sweep id, you can pass it in as an argument
+    # 2. If you have a sweep id, you can set it in config.py
+    # 3. If you don't have a sweep id, automatically make a new one
+    if sweep_id is None:
+        if args.sweep_id is not None:
+            sweep_id = args.sweep_id
+        elif sweep_id is None:
+            sweep_id = make_new_sweep()
+            print(f"New sweep id:\n{sweep_id}")
+            print("Set this variable in config or " +
+                  "pass it as an argument to experiment.py.\nExiting...")
+            exit()
+
+    SWEEP_ID = f"reward-shapers/{PROJ}/{sweep_id}"
 
     def wandb_func():
         shaping(train_steps=train_steps)
 
-    wandb.agent(sweep_id, function=wandb_func, count=args.count)
+    wandb.agent(SWEEP_ID, function=wandb_func, count=args.count)

@@ -16,16 +16,16 @@ td3_mujoco_experiment = {"ALGO": ShapedTD3, "PROJ": "TD3-mujoco",
 
 td3_mujoco_finetuned0 = {"ALGO": ShapedTD3, "SHAPED": 1, "PROJ": "TD3-mujoco",
                          "GAMMA": 0.99, "ENV": "Hopper-v3",
-                         "SWEEPID": None, "COUNT": 1, 'TRAIN_STEPS': 100_000,
+                         "SWEEPID": "f6dus92b", "COUNT": 1, 'TRAIN_STEPS': 100_000,
                          "LEARNING_RATE": 4.5e-5, "BUFFER_SIZE": 3e6,
                          "BATCH_SIZE": 1.5e5, "LEARNING_STARTS": 200,
                          "TAU": 0.0062}
 
 td3_mujoco_finetuned1 = {"ALGO": ShapedTD3, "SHAPED": 0, "PROJ": "TD3-mujoco",
                          "GAMMA": 0.99, "ENV": "Hopper-v3",
-                         "SWEEPID": None, "COUNT": 1, 'TRAIN_STEPS': 100_000,
+                         "SWEEPID": "qqeiinos", "COUNT": 1, 'TRAIN_STEPS': 100_000,
                          "LEARNING_RATE": 5e-5, "BUFFER_SIZE": 1.8e7,
                          "BATCH_SIZE": 1.5e6, "LEARNING_STARTS": 170,
                          "TAU": 0.006}
 # set the sweep configuration
-experiment = td3_mujoco_finetuned0
+experiment = td3_mujoco_finetuned1
