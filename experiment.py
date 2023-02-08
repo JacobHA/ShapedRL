@@ -18,7 +18,6 @@ def shaping(train_steps=1_000_000):
             project=PROJ) as run:
 
         model = configured_model(wandb.config)
-
         model.learn(total_timesteps=train_steps, callback=None)
 
 
