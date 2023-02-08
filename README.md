@@ -1,7 +1,5 @@
 ### Run experiments based on globally set variables
 
-```
-
 Specify the experiment parameters in the config.py file. 
 The wandb config files for each algo are in the sweep_configs folder.
 
