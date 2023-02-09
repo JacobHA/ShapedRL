@@ -1,10 +1,10 @@
 ### Run experiments based on globally set variables
 
-Specify the experiment parameters in the config.py file. 
+Specify the experiment parameters in the config.py file. (No arguments are passed to the experiment.py file)
 The wandb config files for each algo are in the sweep_configs folder.
 
 ```
-python experiment.py --sweep_id="mysweepid" --count=10
+python experiment.py
 ```
 
 # TODOs:
