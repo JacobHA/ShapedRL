@@ -11,3 +11,7 @@ python experiment.py
 - [x] Add a ShapedTD3 class
 - [x] Automatically choose the sweep config.yml file based on model used
 - [ ] Clean up sweep id configuration
+
+# Related Work:
+- https://arxiv.org/pdf/2011.02669.pdf
+
