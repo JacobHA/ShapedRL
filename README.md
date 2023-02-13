@@ -14,4 +14,6 @@ python experiment.py
 
 # Related Work:
 - https://arxiv.org/pdf/2011.02669.pdf
+- Munchausen: https://arxiv.org/abs/2007.14430
+- (related to above: https://arxiv.org/abs/2205.07467)
 
