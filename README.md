@@ -17,3 +17,6 @@ python experiment.py
 - Munchausen: https://arxiv.org/abs/2007.14430
 - (related to above: https://arxiv.org/abs/2205.07467)
 
+# Future Work / Ideas:
+- For automatically adjusting the learning rate (to min. clipping) or adjust the soft-clip weight parameter:
+- Sec 5 in https://arxiv.org/pdf/1812.05905.pdf
