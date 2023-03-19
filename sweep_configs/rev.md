@@ -4,10 +4,13 @@ Within the "strengths" section you have mentioned: "the provided experiments sup
 
 Thank you for introducing us to the work of [1] which we include in the updated version. 
 
-$$ kappa(s,a) = f({r(s,a)}) + gamma V_f(s') - f({Q_k(s,a)})$$
-$$ kappa(s,a) = max_k {r_k(s,a)} + max_{a'} max_k { Q_k(s',a') } - max_k {Q_k(s,a)} $$
-$$ kappa(s,a) = max_k {r_k(s,a)} + max_{k} max_{a'} { Q_k(s',a') } - max_k {Q_k(s,a)} $$
-$$ kappa(s,a) = max_k {r_k(s,a)} + max_{k} max_{a'} { Q_k(s',a') } - max_k {Q_k(s,a)} $$
+$$ \kappa(s,a) = f({r(s,a)}) + \gamma V_f(s') - f({Q_k(s,a)})$$
+
+$$ \kappa(s,a) = \max_k {r_k(s,a)} + \max_{a'} \max_k { Q_k(s',a') } - \max_k {Q_k(s,a)} $$
+
+$$ \kappa(s,a) = \max_k {r_k(s,a)} + \max_{k} \max_{a'} { Q_k(s',a') } - \max_k {Q_k(s,a)} $$
+
+$$ \kappa(s,a) = \max_k {r_k(s,a)} + \max_{k} \max_{a'} { Q_k(s',a') } - \max_k {Q_k(s,a)} $$
 
 To address your raised weaknesses:
 
