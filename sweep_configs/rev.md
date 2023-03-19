@@ -14,7 +14,7 @@ $$ \kappa(s,a) = \max_k {r_k(s,a)} + \max_{k} \max_{a'} { Q_k(s',a') } - \max_k 
 
 $$ \kappa(s,a) = \max_k {r_k(s,a)} + \max_{k} \max_{a'} { Q_k(s',a') } - \max_k {Q_k(s,a)} $$
 
-$$ \kappa(s,a) \geq \max_k (r_k(s,a) + \max_{a'} { Q_k(s',a') ) - \max_k {Q_k(s,a)} $$
+$$ \kappa(s,a) \geq \max_k (r_k(s,a) + \max_{a'}  Q_k(s',a') ) - \max_k {Q_k(s,a)} $$
 
 $$ \kappa(s,a) \geq \max_k  Q_k(s,a)  - \max_k {Q_k(s,a)} = 0 $$
 
