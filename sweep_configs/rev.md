@@ -1,5 +1,5 @@
 
-Thank you for the accurate summary of our work and your helpful comments. 
+Thank you for the **accurate summary of our work and your helpful comments**. 
 
 In the "strengths" section, you mention "deriving clipping (albeit in specific circumstances when you already have pre-trained policies on related tasks)". We would like to emphasize that our results also hold when optimal (or even sub-optimal) policies are known in very different tasks. In section 5.1, the referenced $Q^{\pi_k}$ can be the value function corresponding to *any* policy, e.g. a suboptimal policy's value in an arbitrary task (with only the same state and action space). We therefore believe the results shown will be of a broader interest to the RL community, beyond the subset interested in compositionality.
 
