@@ -3,14 +3,21 @@ Thank you for the detailed summary of our work and the questions. We'd first lik
 Within the "strengths" section you have mentioned: "the provided experiments support well known facts, such as large learning rates is bad". We would like to emphasize that the referenced experiment actually shows two distinct phenomena: (a) as mentioned, large learning rates are bad and (b) large learning rates lead to higher frequencies of bound violations during training. We have shown in the Appendix, Fig. 9, that these conclusions are in agreement  (i.e. these metrics yield similar notions of "optimal" learning rate). Importantly, the clipping frequency, which is much easier to measure than the final trained policy's performance, acts as a good metric for "optimality" of the learning rate. We also believe that this sets the stage for future work investigating an adaptive learning rate schedule aimed at reducing the clipping frequency.
 
 Thank you for introducing us to the work of [1] which we include in the updated version. 
+OR composition in entropy-regularized RL:
 
-$$ \kappa(s,a) = f({r(s,a)}) + \gamma V_f(s') - f({Q_k(s,a)})$$
+
+$$ \kappa(s,a) = f(\{r(s,a)\}) + \gamma V_f(s') - f(\{Q_k(s,a)\})$$
 
 $$ \kappa(s,a) = \max_k {r_k(s,a)} + \max_{a'} \max_k { Q_k(s',a') } - \max_k {Q_k(s,a)} $$
 
 $$ \kappa(s,a) = \max_k {r_k(s,a)} + \max_{k} \max_{a'} { Q_k(s',a') } - \max_k {Q_k(s,a)} $$
 
 $$ \kappa(s,a) = \max_k {r_k(s,a)} + \max_{k} \max_{a'} { Q_k(s',a') } - \max_k {Q_k(s,a)} $$
+
+$$ \kappa(s,a) \geq \max_k (r_k(s,a) + \max_{a'} { Q_k(s',a') ) - \max_k {Q_k(s,a)} $$
+
+$$ \kappa(s,a) \geq \max_k  Q_k(s,a)  - \max_k {Q_k(s,a)} = 0 $$
+
 
 To address your raised weaknesses:
 
