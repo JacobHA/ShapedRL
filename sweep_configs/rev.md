@@ -1,11 +1,4 @@
-In the standard RL setting, while the optimal action-value function is unique, in general there may be many optimal policies (e.g. multiple ways to solve the same task). This means that often the estimated action-value may be suboptimal even when we learned an optimal policy (e.g. if we have found an optimal policy which knows how to solve the task one optimal way, it may not learn how to solve the task an alternative way and so our estimated action-values for those states might remain very low). Did this problem arise in your experiments / have you considered it (e.g. by trying a tabular task with multiple solutions). \JA{ Indeed we have observed this behavior and looked into its downstream effects. We have found that such policies, although they are suboptimal in terms of accurate value functions, they still provide a possible bound on the optimal value function of interest. We would like to note that this does not interfere with the theory developed, it is still applicable but leads to looser bounds / more required training. }
-\newline
-\newline
-Do you think the clipping approach etc. would work in larger tasks with function approximators? Is there a reason you didn't try this? \JA{The focus of the current work was to devleop the theoretical framework and justify with initial proof-of-concept experiments. However, we have more recently tested in this setting (see response to rev 2) -- possibly include}
 
-}
-
-\response{
 Thank you for the accurate summary of our work and your helpful comments. 
 
 In the ``strengths`` section, you mention ``deriving clipping (albeit in specific circumstances when you already have pre-trained policies on related tasks)''. We would like to emphasize that our results also hold when optimal (or even sub-optimal) policies are known in very different tasks. In section 5.1, the referenced $Q^{\pi_k}$ can be the value function corresponding to \textit{any} policy, e.g. a suboptimal policy's value in an arbitrary task (with only the same state and action space). We therefore believe the results shown will be of a broader interest to the RL community, beyond the subset interested in compositionality.
