@@ -93,10 +93,10 @@ class ShapedSAC(SAC):
                     # of the next q values:
                     next_v = alpha * \
                         th.logsumexp(next_q_values/alpha, dim=1, keepdim=True)
-                    # curr_v = alpha * th.logsumexp(
-                    #     current_q_values[0]/alpha, dim=1, keepdim=True)
+                    curr_v = alpha * th.logsumexp(
+                        current_q_values[0]/alpha, dim=1, keepdim=True)
 
-                    rewards += self.gamma * next_v - curr_q_values
+                    rewards += self.gamma * next_v - curr_v
 
                 target_q_values = replay_data.rewards + \
                     (1 - replay_data.dones) * self.gamma * next_q_values
