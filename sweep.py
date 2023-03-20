@@ -23,10 +23,25 @@ sweep_ant = {
     },
 }
 
-envs = [
-    "BreakoutNoFrameskip-v4",
-    "PongNoFrameskip-v4",
-]
+env_to_steps = {
+    "BreakoutNoFrameskip-v4": 10000000,
+    "PongNoFrameskip-v4": 10000000,
+    "SpaceInvadersNoFrameskip-v4": 10000000,
+    "QbertNoFrameskip-v4": 10000000,
+    "SeaquestNoFrameskip-v4": 10000000,
+    "EnduroNoFrameskip-v4": 10000000,
+    "MontezumaRevengeNoFrameskip-v4": 10000000,
+    "MsPacmanNoFrameskip-v4": 10000000,
+    "AsteroidsNoFrameskip-v4": 10000000,
+    "AlienNoFrameskip-v4": 10000000,
+    "AmidarNoFrameskip-v4": 10000000,
+    "AssaultNoFrameskip-v4": 10000000,
+    "AsterixNoFrameskip-v4": 10000000,
+    "AtlantisNoFrameskip-v4": 10000000,
+    "BankHeistNoFrameskip-v4": 10000000,
+    "BattleZoneNoFrameskip-v4": 10000000,
+    "BeamRiderNoFrameskip-v4": 10000000,
+}
 
 
 def wandb_atari():
