@@ -5,7 +5,7 @@ import yaml
 import wandb
 import gym
 from stable_baselines3.dqn.dqn import DQN
-from ShapedSAC import ShapedSAC
+from ShapedSAC import SimpleShapedSAC
 from wandb.integration.sb3 import WandbCallback
 import argparse
 
@@ -24,7 +24,7 @@ def shaping(env_name="FrozenLake-v1",
             sync_tensorboard=True,
             project=PROJ) as run:
         config = wandb.config
-        model = ShapedSAC(
+        model = SimpleShapedSAC(
             policy="MlpPolicy",
             env=env,
             learning_rate=config.learning_rate,
