@@ -11,11 +11,12 @@
       "learning_rate": 0.0001,
       "learning_starts": 100000,
       "n_timesteps": 10000000.0,
-      "optimize_memory_usage": true,
+      "optimize_memory_usage": false,
       "policy": "CnnPolicy",
       "target_update_interval": 1000,
       "train_freq": 4,
-      "normalize": false
+      "normalize": false,
+      "verbose": 1
     }
   }
 }
