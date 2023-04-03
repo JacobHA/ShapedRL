@@ -8,3 +8,4 @@
 /runs/
 /best_model/
 /videos/
+*.pyc
