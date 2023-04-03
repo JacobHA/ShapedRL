@@ -6,9 +6,9 @@ import numpy as np
 
 
 class ShapedTD3(TD3):
-    def __init__(self, *args, shaped: int = 0, **kwargs):
+    def __init__(self, *args, do_shape: bool = False, **kwargs):
         super(ShapedTD3, self).__init__(*args, **kwargs)
-        self.shaped = shaped
+        self.do_shape = do_shape
 
     def train(self, gradient_steps: int, batch_size: int = 100) -> None:
         # Switch to train mode (this affects batch norm / dropout)
@@ -50,8 +50,8 @@ class ShapedTD3(TD3):
 
                 next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
                 rewards = replay_data.rewards
-                if self.shaped:
-                    rewards += self.gamma * next_v_max - curr_v_max
+                if self.do_shape:
+                    rewards += (1 - replay_data.dones) * self.gamma * next_v_max - curr_v_max
 
                 target_q_values = rewards + \
                     (1 - replay_data.dones) * self.gamma * next_q_values

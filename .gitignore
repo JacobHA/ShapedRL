@@ -5,3 +5,6 @@
 /models
 /wandb
 *.sif
+/runs/
+/best_model/
+/videos/

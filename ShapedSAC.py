@@ -5,9 +5,9 @@ from torch.nn import functional as F
 import numpy as np
 
 
-class SimpleShapedSAC(SAC):
+class ShapedSAC(SAC):
     def __init__(self, *args, do_shape: bool = False, **kwargs):
-        super(SimpleShapedSAC, self).__init__(*args, **kwargs)
+        super(ShapedSAC, self).__init__(*args, **kwargs)
         self.do_shape = do_shape
 
     def train(self, gradient_steps: int, batch_size: int = 64) -> None:
