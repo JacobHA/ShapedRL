@@ -41,8 +41,7 @@ echo "starting task $SLURM_ARRAY_TASK_ID"
 echo "using $SLURM_CPUS_ON_NODE CPUs"
 echo `date`
 
-module load singularity-3.6.4-gcc-9.3.0-4zf6tdh
-singularity exec --nv --bind ./local_tmp:/tmp mujoco-py38.sif python sweep.py
+python sweep.py -e "PongNoFrameskip-v4"
 
 # Diagnostic/Logging Information
 echo "Finish Run"

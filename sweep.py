@@ -1,15 +1,16 @@
 import argparse
 import json
-import wandb
-import gym
 from stable_baselines3.common.atari_wrappers import AtariWrapper
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecEnv, VecFrameStack, VecNormalize, VecMonitor
+from stable_baselines3.common.callbacks import EvalCallback
+import gym
+import wandb
 
 from algos import ShapedDQN, ShapedTD3, ShapedSAC
 
 
 ENTITY = "qcoolers"
-DEFALUT_SWEEP_CONFIG = "sweep_config.json"
+DEFAULT_SWEEP_CONFIG = "sweep_config.json"
 env_name = None
 algo = None
 n_envs = 1
@@ -19,6 +20,9 @@ wrapper_to_class = {
     "stable_baselines3.common.atari_wrappers.AtariWrapper": AtariWrapper,
 }
 
+algo_to_class = {"dqn": ShapedDQN,
+                 "td3": ShapedTD3,
+                 "sac": ShapedSAC}
 
 same_dqn_atari_hparams = {
     "AsteroidsNoFrameskip-v4",
@@ -74,7 +78,15 @@ def wandb_atari():
         n_time_steps = hparams["n_timesteps"]
         env = make_env(hparams)
         model = make_model(env, hparams)
-        model.learn(n_time_steps, log_interval=10, tb_log_name="runs")
+
+        eval_env = gym.make(env_name)
+        eval_callback = EvalCallback(eval_env, n_eval_episodes=1,
+                                     log_path=f'./runs/{run.id}',
+                                     eval_freq=15_000,
+                                     deterministic=True,
+                                     best_model_save_path=f'./best_model/{run.id}')
+
+        model.learn(n_time_steps, log_interval=10, tb_log_name="runs", callback=eval_callback)
 
 
 if __name__ =="__main__":
@@ -88,7 +100,7 @@ if __name__ =="__main__":
     parser.add_argument("--nenvs", type=int, help="number of parallel envs", default=1)
     args = parser.parse_args()
     if not args.sweepid:
-        with open(DEFALUT_SWEEP_CONFIG) as f:
+        with open(DEFAULT_SWEEP_CONFIG) as f:
             config = json.load(f)
         sweep_id = wandb.sweep(config, project=args.project)
     else:
