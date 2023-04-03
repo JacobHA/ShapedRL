@@ -11,6 +11,9 @@ DEFALUT_SWEEP_CONFIG = "sweep_config.json"
 env_name = None
 algo = None
 
+algo_to_class = {"dqn": ShapedDQN, 
+                 "td3": ShapedTD3, 
+                 "sac": ShapedSAC}
 
 same_dqn_atari_hparams = {
     "AsteroidsNoFrameskip-v4",
@@ -45,7 +48,8 @@ def wandb_atari():
         dict_cfg = cfg.as_dict()
         hparams = get_hparams(algo, **dict_cfg)
         env = gym.make(env_name)
-        model = ShapedDQN(env, **hparams)
+
+        model = algo_to_class[algo](env, **hparams)
         model.learn(cfg.n_timesteps, log_interval=10, tb_log_name="runs")
 
 
@@ -55,7 +59,7 @@ if __name__ =="__main__":
     parser.add_argument("-s", "--sweepid", type=str, help="sweep id", default=None)
     parser.add_argument("-n", "--number", type=int, help="number of runs", default=1)
     parser.add_argument("-e", "--env", type=str, help="gym environment name", required=True)
-    parser.add_argument("-a", "--algo", type=str, help="algorithm name", default="dqn")
+    parser.add_argument("-a", "--algo", type=str, help="algorithm name (dqn, sac, td3)", default="dqn")
     args = parser.parse_args()
     if not args.sweepid:
         with open(DEFALUT_SWEEP_CONFIG) as f:
