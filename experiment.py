@@ -1,5 +1,8 @@
 import wandb
-import os
+import gym
+from stable_baselines3.dqn.dqn import DQN
+from ShapedSAC import SimpleShapedSAC
+from wandb.integration.sb3 import WandbCallback
 import argparse
 from config import experiment
 from utils import make_new_sweep, configured_model
@@ -17,7 +20,17 @@ def shaping(train_steps=1_000_000):
             sync_tensorboard=True,
             project=PROJ) as run:
 
-        model = configured_model(wandb.config)
+        config = wandb.config
+        model = SimpleShapedSAC(
+            policy="MlpPolicy",
+            env=env,
+            learning_rate=config.learning_rate,
+            gamma=gamma,
+            buffer_size=50000,
+            ent_coef=ent_coef,
+            shaped=config.shaped,
+            tensorboard_log="./logs/",)
+
         model.learn(total_timesteps=train_steps, callback=None)
 
 

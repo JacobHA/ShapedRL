@@ -1,0 +1,15 @@
+{
+  "method": "random",
+  "metric": {
+    "goal": "maximize",
+    "name": "rollout/tot_ep_rew_mean"
+  },
+  "parameters": {
+    "do_shape": {
+      "values": [true, false]
+    },
+    "minus_v": {
+      "values": [true, false]
+    }
+  }
+}

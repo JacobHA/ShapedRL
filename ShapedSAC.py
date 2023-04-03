@@ -5,11 +5,10 @@ from torch.nn import functional as F
 import numpy as np
 
 
-class ShapedSAC(SAC):
-
-    def __init__(self, *args, shaped: int = 0, **kwargs):
-        super(ShapedSAC, self).__init__(*args, **kwargs)
-        self.shaped = shaped
+class SimpleShapedSAC(SAC):
+    def __init__(self, *args, do_shape: bool = False, **kwargs):
+        super(SimpleShapedSAC, self).__init__(*args, **kwargs)
+        self.do_shape = do_shape
 
     def train(self, gradient_steps: int, batch_size: int = 64) -> None:
         # Switch to train mode (this affects batch norm / dropout)
@@ -81,7 +80,7 @@ class ShapedSAC(SAC):
                     ent_coef * next_log_prob.reshape(-1, 1)
                 # td error + entropy term
                 rewards = replay_data.rewards
-                if self.shaped:
+                if self.do_shape:
                     # Get the current ent_coef
                     try:
                         # If alpha is being learned, detach it
@@ -93,10 +92,11 @@ class ShapedSAC(SAC):
                     # of the next q values:
                     next_v = alpha * \
                         th.logsumexp(next_q_values/alpha, dim=1, keepdim=True)
-                    # curr_v = alpha * th.logsumexp(
-                    #     current_q_values[0]/alpha, dim=1, keepdim=True)
+                    curr_v = alpha * th.logsumexp(
+                        current_q_values[0]/alpha, dim=1, keepdim=True)
 
-                    rewards += self.gamma * next_v - curr_q_values
+                    rewards += (1 - replay_data.dones) * self.gamma * next_v - curr_v
+
 
                 target_q_values = replay_data.rewards + \
                     (1 - replay_data.dones) * self.gamma * next_q_values
@@ -142,3 +142,5 @@ class ShapedSAC(SAC):
         self.logger.record("train/critic_loss", np.mean(critic_losses))
         if len(ent_coef_losses) > 0:
             self.logger.record("train/ent_coef_loss", np.mean(ent_coef_losses))
+
+
