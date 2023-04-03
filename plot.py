@@ -40,7 +40,6 @@ def plot_data(data, xaxis='Epoch', value="AverageEpRet", condition="Condition1",
     plt.gcf().set_size_inches(12, 6)
 
 
-
 def load_data(path, value="eval/mean_reward", learning_starts=1000):
     df = pd.read_csv(path)
     # remove learning starts

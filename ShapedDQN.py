@@ -16,7 +16,7 @@ class ShapedDQN(DQN):
 
     def __init__(self, *args, shape: bool = False, minus_v=True, **kwargs):
         super(ShapedDQN, self).__init__(*args, **kwargs)
-        self.shape = shape
+        self.do_shape = shape
         self.minus_v = minus_v
 
     def train(self, gradient_steps: int, batch_size: int = 100) -> None:
@@ -53,7 +53,7 @@ class ShapedDQN(DQN):
                 next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
 
                 rewards = replay_data.rewards
-                if self.shape:
+                if self.do_shape:
                     rewards += self.gamma * next_v_max - curr_v_max
 
                 target_q_values = rewards + \
