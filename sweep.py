@@ -8,6 +8,8 @@ from ShapedDQN import ShapedDQN
 
 ENTITY = "qcoolers"
 DEFALUT_SWEEP_CONFIG = "sweep_config.json"
+env_name = None
+algo = None
 
 
 same_dqn_atari_hparams = {
@@ -24,23 +26,27 @@ same_dqn_atari_hparams = {
 }
 
 
-def get_hparams(algo, env_name, **hyperparams):
-    env_name = "AlmostEverythingWithNoFrameskip-v4" if env_name in same_dqn_atari_hparams else env_name
+def get_hparams(**hyperparams):
+    envname = "AlmostEverythingWithNoFrameskip-v4" if env_name in same_dqn_atari_hparams else env_name
     with open("hparams.json") as f:
-        config = json.load(f)[algo][env_name]
+        config = json.load(f)[algo][envname]
     config.update(hyperparams)
     return config
 
+def sample_config():
+    with open(DEFALUT_SWEEP_CONFIG) as f:
+        sweep_config = json.load(f)
+
+    return sweep_config
 
 def wandb_atari():
     with wandb.init(sync_tensorboard=True) as run:
         cfg = run.config
         dict_cfg = cfg.as_dict()
-        for env_name in same_dqn_atari_hparams:
-            hparams = get_hparams("dqn", **dict_cfg)
-            env = gym.make(env_name)
-            model = ShapedDQN(env, **hparams)
-            model.learn(cfg.n_timesteps, log_interval=10, tb_log_name="runs")
+        hparams = get_hparams(algo, **dict_cfg)
+        env = gym.make(env_name)
+        model = ShapedDQN(env, **hparams)
+        model.learn(cfg.n_timesteps, log_interval=10, tb_log_name="runs")
 
 
 if __name__ =="__main__":
@@ -48,6 +54,8 @@ if __name__ =="__main__":
     parser.add_argument("-p", "--project", type=str, default="bs-rl")
     parser.add_argument("-s", "--sweepid", type=str, help="sweep id", default=None)
     parser.add_argument("-n", "--number", type=int, help="number of runs", default=1)
+    parser.add_argument("-e", "--env", type=int, help="gym environment name", required=True)
+    parser.add_argument("-a", "--algo", type=str, help="algorithm name", default="dqn")
     args = parser.parse_args()
     if not args.sweepid:
         with open(DEFALUT_SWEEP_CONFIG) as f:
@@ -55,4 +63,6 @@ if __name__ =="__main__":
         sweep_id = wandb.sweep(config, project=args.project)
     else:
         sweep_id = args.sweepid
+    env_name = args.env
+    algo = args.algo
     wandb.agent(sweep_id, function=wandb_atari, count=args.number, project=args.project)
