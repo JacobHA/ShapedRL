@@ -2,7 +2,7 @@
   "method": "random",
   "metric": {
     "goal": "maximize",
-    "name": "rollout/tot_ep_rew_mean"
+    "name": "eval/mean_reward"
   },
   "parameters": {
     "do_shape": {

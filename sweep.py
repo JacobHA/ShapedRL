@@ -51,12 +51,13 @@ def wandb_atari():
         eval_env = gym.make(env_name)
 
         model = algo_to_class[algo](env, **hparams)
+        
         eval_callback = EvalCallback(eval_env, n_eval_episodes=1,
                                      log_path=f'./runs/{run.id}',
                                      eval_freq=15_000,
                                      deterministic=True,
                                      best_model_save_path=f'./best_model/{run.id}')
-        
+
         model.learn(cfg.n_timesteps, log_interval=10, tb_log_name="runs", callback=eval_callback)
 
 
@@ -66,7 +67,7 @@ if __name__ =="__main__":
     parser.add_argument("-s", "--sweepid", type=str, help="sweep id", default=None)
     parser.add_argument("-n", "--number", type=int, help="number of runs", default=1)
     parser.add_argument("-e", "--env", type=str, help="gym environment name", required=True)
-    parser.add_argument("-a", "--algo", type=str, help="algorithm name (dqn, sac, td3)", default="dqn")
+    parser.add_argument("-a", "--algo", type=str, help="algorithm name: (dqn, sac, td3)", default="dqn")
     args = parser.parse_args()
     if not args.sweepid:
         with open(DEFAULT_SWEEP_CONFIG) as f:
