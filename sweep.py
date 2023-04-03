@@ -3,7 +3,7 @@ import json
 import wandb
 import gym
 
-from ShapedDQN import ShapedDQN
+from algos import ShapedDQN, ShapedTD3, ShapedSAC
 
 
 ENTITY = "qcoolers"

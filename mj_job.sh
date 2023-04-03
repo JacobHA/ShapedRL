@@ -29,7 +29,7 @@
 #SBATCH --export=NONE
 
 # Can comment this out (for single node jobs)
-#SBATCH --array=1-10
+##SBATCH --array=1-10
 
 # Put your job commands here, including loading any needed
 # modules or diagnostic echos. Needed for GPU partitions:
@@ -42,7 +42,7 @@ echo "using $SLURM_CPUS_ON_NODE CPUs"
 echo `date`
 
 module load singularity-3.6.4-gcc-9.3.0-4zf6tdh
-singularity exec --nv --bind ./local_tmp:/tmp mujoco-py38.sif python experiment.py
+singularity exec --nv --bind ./local_tmp:/tmp mujoco-py38.sif python sweep.py
 
 # Diagnostic/Logging Information
 echo "Finish Run"
