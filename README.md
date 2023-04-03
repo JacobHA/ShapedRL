@@ -1,10 +1,22 @@
-### add runs to a sweep with specific id
+### Run experiments based on globally set variables
 
-specify the sweep id to add runs to an existing sweep. If no sweep id is specified, a new sweep will be created.    
+Specify the experiment parameters in the config.py file. (No arguments are passed to the experiment.py file)
+The wandb config files for each algo are in the sweep_configs folder.
 
 ```
-python example.py --sweep_id="mysweepid" --count=10
+python experiment.py
 ```
 
 # TODOs:
-- [ ] Add a ShapedTD3 class
+- [x] Add a ShapedTD3 class
+- [x] Automatically choose the sweep config.yml file based on model used
+- [ ] Clean up sweep id configuration
+
+# Related Work:
+- https://arxiv.org/pdf/2011.02669.pdf
+- Munchausen: https://arxiv.org/abs/2007.14430
+- (related to above: https://arxiv.org/abs/2205.07467)
+
+# Future Work / Ideas:
+- For automatically adjusting the learning rate (to min. clipping) or adjust the soft-clip weight parameter:
+- Sec 5 in https://arxiv.org/pdf/1812.05905.pdf

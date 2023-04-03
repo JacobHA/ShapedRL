@@ -1,28 +1,25 @@
-import random
-
-import yaml
-
 import wandb
 import gym
 from stable_baselines3.dqn.dqn import DQN
 from ShapedSAC import SimpleShapedSAC
 from wandb.integration.sb3 import WandbCallback
 import argparse
+from config import experiment
+from utils import make_new_sweep, configured_model
+PROJ = experiment['PROJ']
+model = experiment['ALGO']
+env_name = experiment['ENV']
+sweep_id = experiment['SWEEPID']
+count = experiment['COUNT']
+train_steps = experiment['TRAIN_STEPS']
 
 
-PROJ = "SAC-mujoco"
-ENTITY = "reward-shapers"
-
-
-def shaping(env_name="FrozenLake-v1",
-            gamma=0.99, ent_coef='auto',
-            train_steps=1000000):
-
-    env = gym.make(env_name)
+def shaping(train_steps=1_000_000):
 
     with wandb.init(
             sync_tensorboard=True,
             project=PROJ) as run:
+
         config = wandb.config
         model = SimpleShapedSAC(
             policy="MlpPolicy",
@@ -37,28 +34,30 @@ def shaping(env_name="FrozenLake-v1",
         model.learn(total_timesteps=train_steps, callback=None)
 
 
-def make_new_sweep():
-    # load yaml config
-    with open("sweep_config.yml", "r") as f:
-        sweep_config = yaml.safe_load(f)
-    sweep_id = wandb.sweep(sweep_config, project=PROJ, entity=ENTITY)
-    return sweep_id
-
-
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--sweep_id", type=str, default=None)
     parser.add_argument("--count", type=int, default=10)
     args = parser.parse_args()
-    if args.sweep_id is None:
-        sweep_id = make_new_sweep()
-    else:
-        sweep_id = args.sweep_id
+
+    # There are three methods of getting a sweep id:
+    # 1. If you have a sweep id, you can pass it in as an argument
+    # 2. If you have a sweep id, you can set it in config.py
+    # 3. If you don't have a sweep id, automatically make a new one
+    if sweep_id is None:
+        if args.sweep_id is not None:
+            sweep_id = args.sweep_id
+        elif sweep_id is None:
+            sweep_id = make_new_sweep()
+            print(f"New sweep id:\n{sweep_id}")
+            print("Set this variable in config or " +
+                  "pass it as an argument to experiment.py.\nExiting...")
+            exit()
+
+    SWEEP_ID = f"reward-shapers/{PROJ}/{sweep_id}"
 
     def wandb_func():
-        # Based on https://openreview.net/pdf?id=HJjvxl-Cb
-        shaping(env_name='Reacher-v2',
-                train_steps=1_000_000, gamma=0.99, ent_coef=1/100)
+        shaping(train_steps=train_steps)
 
-    wandb.agent(sweep_id, function=wandb_func, count=args.count)
-
+    wandb.agent(SWEEP_ID, function=wandb_func, count=args.count)
