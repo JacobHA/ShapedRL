@@ -1,18 +1,18 @@
 import argparse
 import json
-import wandb
-import gym
-
 from algos import ShapedDQN, ShapedTD3, ShapedSAC
+from stable_baselines3.common.callbacks import EvalCallback
+import gym
+import wandb
 
 
 ENTITY = "qcoolers"
-DEFALUT_SWEEP_CONFIG = "sweep_config.json"
+DEFAULT_SWEEP_CONFIG = "sweep_config.json"
 env_name = None
 algo = None
 
-algo_to_class = {"dqn": ShapedDQN, 
-                 "td3": ShapedTD3, 
+algo_to_class = {"dqn": ShapedDQN,
+                 "td3": ShapedTD3,
                  "sac": ShapedSAC}
 
 same_dqn_atari_hparams = {
@@ -37,7 +37,7 @@ def get_hparams(**hyperparams):
     return config
 
 def sample_config():
-    with open(DEFALUT_SWEEP_CONFIG) as f:
+    with open(DEFAULT_SWEEP_CONFIG) as f:
         sweep_config = json.load(f)
 
     return sweep_config
@@ -48,9 +48,16 @@ def wandb_atari():
         dict_cfg = cfg.as_dict()
         hparams = get_hparams(algo, **dict_cfg)
         env = gym.make(env_name)
+        eval_env = gym.make(env_name)
 
         model = algo_to_class[algo](env, **hparams)
-        model.learn(cfg.n_timesteps, log_interval=10, tb_log_name="runs")
+        eval_callback = EvalCallback(eval_env, n_eval_episodes=1,
+                                     log_path=f'./runs/{run.id}',
+                                     eval_freq=15_000,
+                                     deterministic=True,
+                                     best_model_save_path=f'./best_model/{run.id}')
+        
+        model.learn(cfg.n_timesteps, log_interval=10, tb_log_name="runs", callback=eval_callback)
 
 
 if __name__ =="__main__":
@@ -62,7 +69,7 @@ if __name__ =="__main__":
     parser.add_argument("-a", "--algo", type=str, help="algorithm name (dqn, sac, td3)", default="dqn")
     args = parser.parse_args()
     if not args.sweepid:
-        with open(DEFALUT_SWEEP_CONFIG) as f:
+        with open(DEFAULT_SWEEP_CONFIG) as f:
             config = json.load(f)
         sweep_id = wandb.sweep(config, project=args.project)
     else:
