@@ -1,7 +1,7 @@
 import wandb
 import gym
-from stable_baselines3.dqn.dqn import DQN
-from ShapedSAC import SimpleShapedSAC
+from ShapedDQN import ShapedDQN
+from ShapedSAC import ShapedSAC
 from wandb.integration.sb3 import WandbCallback
 import argparse
 from config import experiment
@@ -21,7 +21,7 @@ def shaping(train_steps=1_000_000):
             project=PROJ) as run:
 
         config = wandb.config
-        model = SimpleShapedSAC(
+        model = ShapedSAC(
             policy="MlpPolicy",
             env=env,
             learning_rate=config.learning_rate,
