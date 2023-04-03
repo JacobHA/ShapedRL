@@ -7,7 +7,7 @@ import numpy as np
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--project", type=str, default="DQN_optomalhypercompbound")
+    parser.add_argument("--project", type=str, default="bs-rl")
     parser.add_argument("--entity", type=str, default=None)
     parser.add_argument("--dir", type=str, default="export")
     args = parser.parse_args()
