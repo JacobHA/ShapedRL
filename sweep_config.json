@@ -7,9 +7,6 @@
   "parameters": {
     "do_shape": {
       "values": [true, false]
-    },
-    "minus_v": {
-      "values": [true, false]
     }
   }
 }
