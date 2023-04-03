@@ -54,7 +54,7 @@ if __name__ =="__main__":
     parser.add_argument("-p", "--project", type=str, default="bs-rl")
     parser.add_argument("-s", "--sweepid", type=str, help="sweep id", default=None)
     parser.add_argument("-n", "--number", type=int, help="number of runs", default=1)
-    parser.add_argument("-e", "--env", type=int, help="gym environment name", required=True)
+    parser.add_argument("-e", "--env", type=str, help="gym environment name", required=True)
     parser.add_argument("-a", "--algo", type=str, help="algorithm name", default="dqn")
     args = parser.parse_args()
     if not args.sweepid:
