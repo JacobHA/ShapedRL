@@ -12,6 +12,7 @@ python experiment.py
 - [x] Automatically choose the sweep config.yml file based on model used
 - [ ] Clean up sweep id configuration
 - [ ] Clean up eval callback 
+- [ ] Make tests for missing args in hparam (e.g. DQN() when "policy" is missing from hparams)
 
 # Related Work:
 - https://arxiv.org/pdf/2011.02669.pdf

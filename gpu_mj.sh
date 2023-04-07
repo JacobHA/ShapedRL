@@ -42,7 +42,7 @@ echo "using $SLURM_CPUS_ON_NODE CPUs"
 echo `date`
 
 module load singularity-3.6.4-gcc-9.3.0-4zf6tdh
-singularity exec --nv --bind ./local_tmp:/tmp mujoco-py38.sif python sweep.py -e "PongNoFrameskip-v4"
+singularity exec --nv --bind ./local_tmp:/tmp mujoco-py38.sif python sweep.py -e "Acrobot-v1" -a "dqn" -s "6hdu0ywp"
 
 # Diagnostic/Logging Information
 echo "Finish Run"

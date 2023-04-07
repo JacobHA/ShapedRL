@@ -54,7 +54,7 @@ def get_hparams(**hyperparams):
 def _make_env(hparams):
     def _init():
         env = gym.make(env_name)
-        for wrapper in hparams["env_wrapper"]:
+        for wrapper in hparams.get("env_wrapper", []):
             env = wrapper_to_class[wrapper](env)
         return env
     return _init
@@ -82,7 +82,7 @@ def atari(dict_cfg, run=None):
     env_hparams, model_hparams = get_hparams(**dict_cfg)
     env = make_train_env(env_hparams)
     n_time_steps = model_hparams.pop("n_timesteps")
-    model = ShapedDQN(env=env, **model_hparams)
+    model = ShapedDQN(env=env, **model_hparams, verbose=4, tensorboard_log=f"./runs/{run.id if run else 'default'}")
     model_name = f"{algo}-{env_name}-{'shaped' if model_hparams['do_shape'] else 'unshaped'}"
 
     eval_env = make_eval_env(env_hparams, run)
@@ -92,14 +92,14 @@ def atari(dict_cfg, run=None):
                                  deterministic=True,
                                  best_model_save_path=f'./best_model/{model_name}')
 
-    model.learn(n_time_steps, log_interval=10, tb_log_name="runs", callback=eval_callback)
+    model.learn(n_time_steps, log_interval=1, callback=eval_callback)#, tb_log_name="runs")
 
 
 def wandb_atari():
-    with wandb.init(sync_tensorboard=True) as run:
+    with wandb.init(sync_tensorboard=True, project=args.project) as run:
         cfg = run.config
         dict_cfg = cfg.as_dict()
-        atari(dict_cfg, run)
+        atari(dict_cfg, run=run)
 
 
 if __name__ =="__main__":
@@ -122,4 +122,5 @@ if __name__ =="__main__":
     algo = args.algo
     n_envs = args.nenvs
     # wandb.agent(sweep_id, function=wandb_atari, count=args.number, project=args.project)
-    atari({'do_shape': False}, None)
+    # atari({'do_shape': True}, None)
+    wandb_atari()

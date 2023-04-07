@@ -20,13 +20,13 @@
 # set the partition where the job will run.  Multiple partitions can
 # be specified as a comma separated list
 # Use command "sinfo" to get the list of partitions
-##SBATCH --partition=AMD6276
-#SBATCH --partition=DGXA100
+#SBATCH --partition=AMD6276
+##SBATCH --partition=DGXA100
 # https://www.umb.edu/rc/hpc/chimera/chimera_scheduler
 
 #When submitting to the GPU node, these following three lines are needed:
-#SBATCH --gres=gpu:1
-#SBATCH --export=NONE
+##SBATCH --gres=gpu:1
+##SBATCH --export=NONE
 
 # Can comment this out (for single node jobs)
 ##SBATCH --array=1-10
@@ -41,7 +41,14 @@ echo "starting task $SLURM_ARRAY_TASK_ID"
 echo "using $SLURM_CPUS_ON_NODE CPUs"
 echo `date`
 
-python sweep.py -e "PongNoFrameskip-v4"
+eval "$(conda shell.bash hook)"
+conda activate /home/jacob.adamczyk001/miniconda3/envs/oblenv
+export CPATH=$CPATH:$CONDA_PREFIX/include
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib
+
+
+# python sweep.py -e "PongNoFrameskip-v4"
+python sweep.py -e "Acrobot-v1" -a "dqn" -s "6hdu0ywp" --nenvs 4
 
 # Diagnostic/Logging Information
 echo "Finish Run"
