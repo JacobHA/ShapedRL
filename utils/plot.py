@@ -7,10 +7,11 @@ import numpy as np
 filter_keywords = ["do_shape"]
 
 def plot_data(data, xaxis='global_step', value="eval/mean_reward", condition=None,
-              title=None, xlabel=None, ylabel=None, xlim=None, ylim=None, **kwargs):
+              title=None, normalize=False, xlabel=None, ylabel=None, xlim=None, ylim=None, **kwargs):
 
-    for datum in data:
-        datum[value] /= np.max(np.abs(datum[value]))
+    if normalize:
+        for datum in data:
+            datum[value] /= np.max(np.abs(datum[value]))
 
     if isinstance(data, list):
         data = pd.concat(data, ignore_index=True)
@@ -41,10 +42,9 @@ def plot_data(data, xaxis='global_step', value="eval/mean_reward", condition=Non
     plt.gcf().set_size_inches(12, 6)
 
 
-def load_data(path, value="eval/mean_reward", learning_starts=1000):
+def load_data(path, learning_starts=1000):
     df = pd.read_csv(path)
     df = df[df["global_step"] > learning_starts]
-
     # absolute all numeric values
     for col in df.columns:
         # if col != "clip_method":
@@ -63,7 +63,7 @@ def plot(value="eval/mean_reward", title=None, xlabel=None, ylabel=None,
     cond_list = []
     for file_name in files:
         try:
-            data = load_data("export/" + file_name, value=value)
+            data = load_data("export/" + file_name)
             data_list.append(data)
             cond_list.append(file_name.split("-")[1])
         except Exception as e:
@@ -86,5 +86,5 @@ def plot(value="eval/mean_reward", title=None, xlabel=None, ylabel=None,
 
 if __name__ == "__main__":
     plot(title='Evaluation Rewards During Training',
-         xlabel=r'Environment Steps ($\times 1,000$)', ylabel='Rewards')#,
-        #  xlim=(0, 100), ylim=(-500,-50))
+         xlabel=r'Environment Steps ($\times 1,000$)', ylabel='Rewards',
+         xlim=(0, 50), ylim=(-500,-50))
