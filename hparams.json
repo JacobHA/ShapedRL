@@ -28,7 +28,6 @@
       },
       "model":{
         "policy": "MlpPolicy",
-        "do_shape": false,
         "batch_size": 128,
         "buffer_size": 50000,
         "exploration_final_eps": 0.1,

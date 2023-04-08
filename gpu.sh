@@ -2,7 +2,7 @@
 #SBATCH --job-name=mujoco
 #SBATCH --time=03-23:00:00
 #SBATCH --mem-per-cpu=8gb
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=64
 
 #set an account to use
 #if not used then default will be used
@@ -20,16 +20,16 @@
 # set the partition where the job will run.  Multiple partitions can
 # be specified as a comma separated list
 # Use command "sinfo" to get the list of partitions
-#SBATCH --partition=AMD6276
-##SBATCH --partition=DGXA100
+##SBATCH --partition=AMD6276
+#SBATCH --partition=DGXA100
 # https://www.umb.edu/rc/hpc/chimera/chimera_scheduler
 
 #When submitting to the GPU node, these following three lines are needed:
-##SBATCH --gres=gpu:1
-##SBATCH --export=NONE
+#SBATCH --gres=gpu:1
+#SBATCH --export=NONE
 
 # Can comment this out (for single node jobs)
-#SBATCH --array=1-10
+##SBATCH --array=1-10
 
 # Put your job commands here, including loading any needed
 # modules or diagnostic echos. Needed for GPU partitions:
@@ -42,13 +42,14 @@ echo "using $SLURM_CPUS_ON_NODE CPUs"
 echo `date`
 
 eval "$(conda shell.bash hook)"
-conda activate /home/jacob.adamczyk001/miniconda3/envs/oblenv
+conda activate /home/jacob.adamczyk001/miniconda3/envs/gpusbl
 export CPATH=$CPATH:$CONDA_PREFIX/include
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib
 
 
-# python sweep.py -e "PongNoFrameskip-v4"
-python sweep.py -e "Acrobot-v1" -a "dqn" -s "deuayze5" --nenvs 4
+python sweep.py -e "PongNoFrameskip-v4" -a "dqn" --nenvs 8 -s "0lc0t5jv"
+# python sweep.py -e "ALE/SpaceInvaders-v5" -a "dqn" --nenvs 64 #-s "0lc0t5jv"
+# python sweep.py -e "Acrobot-v1" -a "dqn" -s "deuayze5" --nenvs 4
 
 # Diagnostic/Logging Information
 echo "Finish Run"
