@@ -98,7 +98,7 @@ def atari(dict_cfg, run=None):
 
 
 def wandb_atari():
-    with wandb.init(sync_tensorboard=True, project=args.project) as run:
+    with wandb.init(sync_tensorboard=True) as run:
         cfg = run.config
         dict_cfg = cfg.as_dict()
         atari(dict_cfg, run=run)
@@ -127,4 +127,4 @@ if __name__ =="__main__":
     # Before calling the agent on this full_sweep_id, make sure it exists (i.e. the project and sweep):
     test_sweep_existence(full_sweep_id)
 
-    wandb.agent(full_sweep_id, function=wandb_atari, count=args.number, project=args.project)
+    wandb.agent(full_sweep_id, function=wandb_atari, count=args.number)
