@@ -4,8 +4,9 @@ import pandas as pd
 import os
 import numpy as np
 
+filter_keywords = ["do_shape"]
 
-def plot_data(data, xaxis='Epoch', value="AverageEpRet", condition="Condition1",
+def plot_data(data, xaxis='global_step', value="eval/mean_reward", condition=None,
               title=None, xlabel=None, ylabel=None, xlim=None, ylim=None, **kwargs):
 
     for datum in data:
@@ -42,16 +43,15 @@ def plot_data(data, xaxis='Epoch', value="AverageEpRet", condition="Condition1",
 
 def load_data(path, value="eval/mean_reward", learning_starts=1000):
     df = pd.read_csv(path)
-    # remove learning starts
     df = df[df["global_step"] > learning_starts]
-    df = df[df[value] != None]
+
     # absolute all numeric values
     for col in df.columns:
-        if col != "clip_method":
-            df[col] = df[col].abs()
+        # if col != "clip_method":
+        #     df[col] = df[col].abs()
 
         if col == "global_step":
-            df[col] = df[col] / 1e5
+            df[col] = df[col] / 1e3
 
     return df
 
@@ -72,7 +72,7 @@ def plot(value="eval/mean_reward", title=None, xlabel=None, ylabel=None,
         data_list,
         xaxis="global_step",
         value=value,
-        condition="clip_method",
+        condition='do_shape',
         errorbar=("ci", 95),
         title=title,
         xlabel=xlabel,
@@ -81,10 +81,10 @@ def plot(value="eval/mean_reward", title=None, xlabel=None, ylabel=None,
         ylim=ylim,
         **kwargs
     )
-    plt.savefig(f'plot_{title}.pdf', dpi=800)
+    plt.savefig(f'plot_{title}.png', dpi=800)
 
 
 if __name__ == "__main__":
     plot(title='Evaluation Rewards During Training',
-         xlabel=r'Environment Steps ($\times 100,000$)', ylabel='Normalized Rewards',
-         xlim=(0, 1))
+         xlabel=r'Environment Steps ($\times 1,000$)', ylabel='Rewards')#,
+        #  xlim=(0, 100), ylim=(-500,-50))

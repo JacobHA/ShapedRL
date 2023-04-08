@@ -16,6 +16,9 @@ from algos import ShapedDQN, ShapedTD3, ShapedSAC
 ENTITY = "qcoolers"
 LOG_INTERVAL = 1
 DEFAULT_SWEEP_CONFIG = "sweep_config.json"
+EVAL_FREQ = 250
+N_EVAL_EPISODES = 10
+
 env_name = None
 algo = None
 n_envs = 1
@@ -88,9 +91,9 @@ def atari(dict_cfg, run=None):
     model_name = f"{algo}-{env_name}-{'shaped' if model_hparams['do_shape'] else 'unshaped'}"
 
     eval_env = make_eval_env(env_hparams, run)
-    eval_callback = EvalCallback(eval_env, n_eval_episodes=1,
+    eval_callback = EvalCallback(eval_env, n_eval_episodes=N_EVAL_EPISODES,
                                  log_path=f'./runs/{run.id if run else "default"}',
-                                 eval_freq=15_000,
+                                 eval_freq=EVAL_FREQ,
                                  deterministic=True,
                                  best_model_save_path=f'./best_model/{model_name}')
 
