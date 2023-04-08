@@ -48,7 +48,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib
 
 
 # python sweep.py -e "PongNoFrameskip-v4"
-python sweep.py -e "Acrobot-v1" -a "dqn" -s "6hdu0ywp" --nenvs 4
+python sweep.py -e "Acrobot-v1" -a "dqn" -s "deuayze5" --nenvs 4
 
 # Diagnostic/Logging Information
 echo "Finish Run"

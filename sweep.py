@@ -8,11 +8,13 @@ from stable_baselines3.common.env_util import Monitor
 from stable_baselines3.common.callbacks import EvalCallback
 import gym
 import wandb
+from utils.utilities import test_sweep_existence
 
 from algos import ShapedDQN, ShapedTD3, ShapedSAC
 
 
 ENTITY = "qcoolers"
+LOG_INTERVAL = 1
 DEFAULT_SWEEP_CONFIG = "sweep_config.json"
 env_name = None
 algo = None
@@ -92,7 +94,7 @@ def atari(dict_cfg, run=None):
                                  deterministic=True,
                                  best_model_save_path=f'./best_model/{model_name}')
 
-    model.learn(n_time_steps, log_interval=1, callback=eval_callback)#, tb_log_name="runs")
+    model.learn(n_time_steps, log_interval=LOG_INTERVAL, callback=eval_callback)
 
 
 def wandb_atari():
@@ -100,7 +102,6 @@ def wandb_atari():
         cfg = run.config
         dict_cfg = cfg.as_dict()
         atari(dict_cfg, run=run)
-
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser()
@@ -115,12 +116,15 @@ if __name__ =="__main__":
     if not args.sweepid:
         with open(DEFAULT_SWEEP_CONFIG) as f:
             config = json.load(f)
-        sweep_id = wandb.sweep(config, project=args.project)
+        sweep_id = wandb.sweep(config, project=args.project, entity=args.entity)
     else:
         sweep_id = args.sweepid
+    full_sweep_id = f"{args.entity}/{args.project}/{sweep_id}"
     env_name = args.env
     algo = args.algo
     n_envs = args.nenvs
-    # wandb.agent(sweep_id, function=wandb_atari, count=args.number, project=args.project)
-    # atari({'do_shape': True}, None)
-    wandb_atari()
+    
+    # Before calling the agent on this full_sweep_id, make sure it exists (i.e. the project and sweep):
+    test_sweep_existence(full_sweep_id)
+
+    wandb.agent(full_sweep_id, function=wandb_atari, count=args.number, project=args.project)
