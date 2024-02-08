@@ -2,7 +2,7 @@ import argparse
 import json
 from algos import ShapedDQN, ShapedTD3, ShapedSAC
 from stable_baselines3.common.callbacks import EvalCallback
-import gym
+import gymnasium as gym
 import wandb
 
 

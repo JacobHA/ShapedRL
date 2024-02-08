@@ -14,7 +14,7 @@ class ShapedDQN(DQN):
     r --> r + gamma V^(s') - V(s)
     """
 
-    def __init__(self, *args, do_shape: bool = False, **kwargs):
+    def __init__(self, *args, do_shape=0, **kwargs):
         super(ShapedDQN, self).__init__(*args, **kwargs)
         self.do_shape = do_shape
 
@@ -50,8 +50,11 @@ class ShapedDQN(DQN):
                 next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
 
                 rewards = replay_data.rewards
-                if self.do_shape:
-                    rewards += (1 - replay_data.dones) * self.gamma * next_v_max - curr_v_max
+                
+                # TODO: Do we include the 1-dones here?
+                # weight = 1 - epsilon
+                weight = self.exploration_rate
+                rewards += weight * ((1 - replay_data.dones) * self.gamma * next_v_max - curr_v_max)
 
                 target_q_values = rewards + \
                     (1 - replay_data.dones) * self.gamma * max_q_value
