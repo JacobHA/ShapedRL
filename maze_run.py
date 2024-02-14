@@ -29,7 +29,9 @@ from stable_baselines3.common.monitor import Monitor
 eval_callback = EvalCallback(eval_env, n_eval_episodes=20,
                 log_path=f'./runs/',
                 eval_freq=1_000,
-                deterministic=True)
+                deterministic=True,
+                verbose=1,
+                render=True,)
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -38,4 +40,4 @@ args = parser.parse_args()
 do_shape = args.s
 
 model = ShapedDQN("MlpPolicy", env, do_shape=do_shape, verbose=4, **hparams, device='cuda', tensorboard_log="./runs")
-model.learn(20_000, log_interval=10, callback=eval_callback, tb_log_name=str(do_shape)+env_str+f'-det={det}')
+model.learn(50_000, log_interval=10, callback=eval_callback, tb_log_name=str(do_shape)+env_str+f'-det={det}')
