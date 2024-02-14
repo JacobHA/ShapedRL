@@ -14,7 +14,7 @@ class ShapedDQN(DQN):
     r --> r + gamma V^(s') - V(s)
     """
 
-    def __init__(self, *args, do_shape=0, **kwargs):
+    def __init__(self, *args, do_shape:bool=False, **kwargs):
         super(ShapedDQN, self).__init__(*args, **kwargs)
         self.do_shape = do_shape
 
@@ -38,13 +38,9 @@ class ShapedDQN(DQN):
                 max_q_value, _ = next_q_value.max(dim=1, keepdim=True)
                 # Avoid potential broadcast issue
                 max_q_value = max_q_value.reshape(-1, 1)
-                # 1-step TD target
-                target_q_values = replay_data.rewards + \
-                    (1 - replay_data.dones) * self.gamma * max_q_value
-                # clip target to be between min and max values
                 # get probabilities of taking the min and max actions
-                curr_q_values = self.policy.q_net(replay_data.observations)
-                next_q_values = self.policy.q_net(
+                curr_q_values = self.q_net_target(replay_data.observations)
+                next_q_values = self.q_net_target(
                     replay_data.next_observations)
                 curr_v_max, _ = curr_q_values.max(dim=1, keepdim=True)
                 next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
@@ -54,7 +50,8 @@ class ShapedDQN(DQN):
                 # TODO: Do we include the 1-dones here?
                 # weight = 1 - epsilon
                 weight = self.exploration_rate
-                rewards += weight * ((1 - replay_data.dones) * self.gamma * next_v_max - curr_v_max)
+                if self.do_shape:
+                    rewards += weight * ((1 - replay_data.dones) * self.gamma * next_v_max - curr_v_max)
 
                 target_q_values = rewards + \
                     (1 - replay_data.dones) * self.gamma * max_q_value

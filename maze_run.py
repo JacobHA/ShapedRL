@@ -6,6 +6,7 @@ from stable_baselines3.common.callbacks import EvalCallback
 env_str = "FrozenLake-v1"
 det=True
 env = gym.make(env_str, is_slippery=not det)
+eval_env = gym.make(env_str, is_slippery=not det)
 
 hparams = {
     'batch_size': 64,
@@ -25,14 +26,14 @@ hparams = {
 
 from stable_baselines3.common.monitor import Monitor
 
-eval_callback = EvalCallback(Monitor(env), n_eval_episodes=20,
+eval_callback = EvalCallback(eval_env, n_eval_episodes=20,
                 log_path=f'./runs/',
                 eval_freq=1_000,
                 deterministic=True)
 
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("-s", type=float, default=0)
+parser.add_argument("-s", type=bool, default=False)
 args = parser.parse_args()
 do_shape = args.s
 
