@@ -40,4 +40,4 @@ args = parser.parse_args()
 do_shape = args.s
 
 model = ShapedDQN("MlpPolicy", env, do_shape=do_shape, verbose=4, **hparams, device='cuda', tensorboard_log="./runs")
-model.learn(50_000, log_interval=10, callback=eval_callback, tb_log_name=str(do_shape)+env_str+f'-det={det}')
+model.learn(40_000, log_interval=10, callback=eval_callback, tb_log_name=str(do_shape)+env_str+f'-det={det}')
