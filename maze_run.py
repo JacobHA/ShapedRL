@@ -36,8 +36,10 @@ eval_callback = EvalCallback(eval_env, n_eval_episodes=20,
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-s", type=bool, default=False)
+parser.add_argument("-t", type=bool, default=True)
 args = parser.parse_args()
 do_shape = args.s
+no_termination_val = args.t
 
-model = ShapedDQN("MlpPolicy", env, do_shape=do_shape, verbose=4, **hparams, device='cuda', tensorboard_log="./runs")
-model.learn(40_000, log_interval=10, callback=eval_callback, tb_log_name=str(do_shape)+env_str+f'-det={det}')
+model = ShapedDQN("MlpPolicy", env, do_shape=do_shape, no_termination_val=no_termination_val, verbose=4, **hparams, device='cuda', tensorboard_log="./runs")
+model.learn(40_000, log_interval=10, callback=eval_callback, tb_log_name=str(model)+env_str+f'-det={det}')

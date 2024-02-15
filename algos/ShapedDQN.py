@@ -14,9 +14,10 @@ class ShapedDQN(DQN):
     r --> r + gamma V^(s') - V(s)
     """
 
-    def __init__(self, *args, do_shape:bool=False, **kwargs):
+    def __init__(self, *args, do_shape:bool=False, no_termination_val=False, **kwargs):
         super(ShapedDQN, self).__init__(*args, **kwargs)
         self.do_shape = do_shape
+        self.no_termination_val = no_termination_val
 
     def train(self, gradient_steps: int, batch_size: int = 100) -> None:
         # Switch to train mode (this affects batch norm / dropout)
@@ -39,22 +40,22 @@ class ShapedDQN(DQN):
                 # Avoid potential broadcast issue
                 max_q_value = max_q_value.reshape(-1, 1)
                 # get probabilities of taking the min and max actions
-                curr_q_values = self.q_net_target(replay_data.observations)
-                next_q_values = self.q_net_target(
-                    replay_data.next_observations)
+                curr_q_values = self.policy.q_net(replay_data.observations)
+                next_q_values = self.policy.q_net(replay_data.next_observations)
                 curr_v_max, _ = curr_q_values.max(dim=1, keepdim=True)
                 next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
 
                 rewards = replay_data.rewards
                 
-                # TODO: Do we include the 1-dones here?
-                # weight = 1 - epsilon
-                weight = self.exploration_rate
+                if self.no_termination_val:
+                    mask = th.ones_like(replay_data.dones)
+                else:
+                    mask = 1 - replay_data.dones
+                weight = 1 - self.exploration_rate
                 if self.do_shape:
-                    rewards += weight * ((1 - replay_data.dones) * self.gamma * next_v_max - curr_v_max)
+                    rewards += weight * (mask * self.gamma * next_v_max - curr_v_max)
 
-                target_q_values = rewards + \
-                    (1 - replay_data.dones) * self.gamma * max_q_value
+                target_q_values = rewards + mask * self.gamma * max_q_value
 
             # Get current Q-values estimates
             current_q_values = self.q_net(replay_data.observations)
@@ -81,3 +82,6 @@ class ShapedDQN(DQN):
         self.logger.record("train/n_updates",
                            self._n_updates, exclude="tensorboard")
         self.logger.record("train/loss", np.mean(losses))
+
+    def __str__(self):
+        return f"s{1 if self.do_shape else 0}t{1 if self.no_termination_val else 0}"
