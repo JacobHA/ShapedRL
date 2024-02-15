@@ -10,5 +10,6 @@
   "exploration_initial_eps": 1.0,
   "exploration_final_eps": 0.02,
   "gamma": 0.99,
-  "total_timesteps": 10000000
+  "total_timesteps": 10000000,
+  "log_freq": 1000
 }

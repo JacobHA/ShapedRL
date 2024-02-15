@@ -11,5 +11,6 @@
   "target_update_interval": 10,
   "tau": 1.0,
   "train_freq": 1,
-  "total_timesteps": 40000
+  "total_timesteps": 40000,
+  "log_freq": 10
 }

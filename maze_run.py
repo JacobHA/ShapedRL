@@ -72,14 +72,15 @@ with open(f"configs/{env_str}.json", 'r') as f:
 
 
 total_timesteps = hparams.pop('total_timesteps')
+log_freq = hparams.pop('log_freq')
 
 eval_callback = EvalCallback(eval_env, n_eval_episodes=20,
                 log_path=f'./runs/',
-                eval_freq=1_000,
+                eval_freq=log_freq*10,
                 deterministic=True,
                 verbose=1,)
 
 model = ShapedDQN(policy, env, do_shape=do_shape, no_termination_val=no_termination_val, verbose=4, **hparams, device='cuda', tensorboard_log="./runs")
-model.learn(total_timesteps, log_interval=10, callback=eval_callback, tb_log_name=str(model)+env_str+f'-det={det}')
+model.learn(total_timesteps, log_interval=log_freq, callback=eval_callback, tb_log_name=str(model)+env_str+f'-det={det}')
 # model = DQN("MlpPolicy", env, verbose=4, **hparams, device='cuda', tensorboard_log="./runs")
 # model.learn(40_000, log_interval=10, callback=eval_callback, tb_log_name="DQN"+env_str+f'-det={det}')
