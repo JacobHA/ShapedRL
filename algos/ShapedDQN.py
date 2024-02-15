@@ -14,9 +14,10 @@ class ShapedDQN(DQN):
     r --> r + gamma V^(s') - V(s)
     """
 
-    def __init__(self, *args, do_shape:bool=False, **kwargs):
+    def __init__(self, *args, shaping_mode='none', **kwargs):
         super(ShapedDQN, self).__init__(*args, **kwargs)
-        self.do_shape = do_shape
+        self.shaping_mode = shaping_mode
+
 
     def train(self, gradient_steps: int, batch_size: int = 100) -> None:
         # Switch to train mode (this affects batch norm / dropout)
@@ -38,20 +39,24 @@ class ShapedDQN(DQN):
                 max_q_value, _ = next_q_value.max(dim=1, keepdim=True)
                 # Avoid potential broadcast issue
                 max_q_value = max_q_value.reshape(-1, 1)
-                # get probabilities of taking the min and max actions
-                curr_q_values = self.q_net_target(replay_data.observations)
-                next_q_values = self.q_net_target(
-                    replay_data.next_observations)
-                curr_v_max, _ = curr_q_values.max(dim=1, keepdim=True)
-                next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
 
-                rewards = replay_data.rewards
+                if self.shaping_mode == 'online':
+                    curr_q_values = self.q_net(replay_data.observations)
+                    next_q_values = self.q_net(replay_data.next_observations)
+                elif self.shaping_mode == 'target':
+                    curr_q_values = self.q_net_target(replay_data.observations)
+                    next_q_values = self.q_net_target(replay_data.next_observations)
+                elif self.shaping_mode == 'none':
+                    pass
                 
                 # TODO: Do we include the 1-dones here?
-                # weight = 1 - epsilon
-                weight = self.exploration_rate
-                if self.do_shape:
-                    rewards += weight * ((1 - replay_data.dones) * self.gamma * next_v_max - curr_v_max)
+                rewards = replay_data.rewards
+
+                if self.shaping_mode != 'none':
+                    curr_v_max, _ = curr_q_values.max(dim=1, keepdim=True)
+                    next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
+
+                    rewards +=  ((1 - replay_data.dones) * self.gamma * next_v_max - curr_v_max)
 
                 target_q_values = rewards + \
                     (1 - replay_data.dones) * self.gamma * max_q_value
