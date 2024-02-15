@@ -1,3 +1,5 @@
+import json
+
 import gymnasium as gym
 from stable_baselines3 import A2C
 from stable_baselines3.common.env_util import make_atari_env
@@ -5,25 +7,15 @@ from stable_baselines3.common.vec_env import VecFrameStack
 from algos.ShapedDQN import ShapedDQN
 from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.vec_env import vec_transpose, vec_frame_stack
+from gymnasium.wrappers.atari_preprocessing import AtariPreprocessing
+
+env_str = "PongNoFrameskip-v4"
 # There already exists an environment generator that will make and wrap atari environments correctly.
-env = make_atari_env("PongNoFrameskip-v4", n_envs=1, seed=0)
+env = make_atari_env(env_str, n_envs=1, seed=0)
 # Stack 4 frames
 env = VecFrameStack(env, n_stack=4)
-hparams = {
-    "buffer_size": 10_000,
-    "batch_size": 32,
-    "gamma": 0.99,
-    "learning_rate": 1e-4,
-    "target_update_interval": 1000,
-    "learning_starts": 100000,
-    "train_freq": 4,
-    "exploration_fraction": 0.1,
-    "exploration_final_eps": 0.01,
-    # "frame_stack": 4,
-    "gradient_steps": 1,
-    "train_freq": 4,    
-}
-
+with open(f"configs/{env_str}.json", 'r') as f:
+    hparams = json.load(f)
 
 model = ShapedDQN("CnnPolicy", env, do_shape=1, verbose=4, tensorboard_log="./runs", **hparams, device='cuda')
 # log eval callbacks in the same tensorboard:
