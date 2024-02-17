@@ -23,6 +23,12 @@ EXPERIMENT=${1:-"atari-mini"}
 N_PARALLEL_JOBS=${2:-5}
 DEVICE=${3:-"cuda"}
 echo "starting $N_PARALLEL_JOBS tasks"
-for (( i=1;i<=$1;i++ )); do {
-  python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
-} done
+# parallel --jobs N_PARALLEL_JOBS python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE
+#for i in {1..5}; do {
+#  python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
+#} done
+
+python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
+python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
+python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
+python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE
