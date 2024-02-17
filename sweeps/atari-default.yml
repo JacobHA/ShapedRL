@@ -16,11 +16,11 @@ parameters:
     values: [ 4 ]
   learning_starts:
     values: [ 50000 ]
-  exploration_final_eps_frame:
-    values: [ 1000000 ]
+  exploration_fraction:
+    values: [ 0.1 ]
   exploration_initial_eps:
     values: [ 1.0 ]
   exploration_final_eps:
     values: [ 0.02 ]
-  discount_factor:
+  gamma:
     values: [ 0.99 ]

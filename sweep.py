@@ -39,7 +39,7 @@ def wandb_train(local_cfg=None):
         local_cfg["parameters"] = sampled_params
         print(f"locally sampled params: {sampled_params}")
         wandb_kwargs['config'] = local_cfg
-    with wandb.init(**wandb_kwargs, sync_tensorboard=True) as run:
+    with wandb.init(**wandb_kwargs, sync_tensorboard=True) as r:
         config = wandb.config.as_dict()
         env_str = config['parameters'].pop('env_id')
         run(env_str, config['parameters'], total_timesteps=1_200_000, log_freq=1000, device=device, log_dir=f'local-{experiment_name}')
@@ -52,16 +52,16 @@ if __name__ == "__main__":
     args.add_argument("--proj", type=str, default="shaping")
     args.add_argument("--local-wandb", type=bool, default=True)
     args.add_argument("--exp-name", type=str, default="atari-mini")
-    args.add_argument("--device", type=str, default='cuda')
+    args.add_argument("-d", "--device", type=str, default='cuda')
     args = args.parse_args()
     project = args.proj
     experiment_name = args.exp_name
     device = args.device
     # load the default config
-    with open("sweep_params/logu-atari-default.yml", "r") as f:
+    with open("sweeps/atari-default.yml", "r") as f:
         default_config = yaml.load(f, yaml.SafeLoader)
     # load the experiment config
-    with open(f"sweep_params/{exp_to_config[experiment_name]}", "r") as f:
+    with open(f"sweeps/{exp_to_config[experiment_name]}", "r") as f:
         expsweepcfg = yaml.load(f, yaml.SafeLoader)
     # combine the two
     sweepcfg = get_sweep_config(expsweepcfg, default_config, project)
