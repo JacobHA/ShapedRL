@@ -1,0 +1,26 @@
+method: random
+parameters:
+  env_id:
+    values: [ 'PongNoFrameskip-v4' ]
+  batch_size:
+    values: [ 32 ]
+  buffer_size:
+    values: [ 100000 ]
+  gradient_steps:
+    values: [ 1 ]
+  learning_rate:
+    values: [ 0.0001 ]
+  target_update_interval:
+    values: [ 1000 ]
+  train_freq:
+    values: [ 4 ]
+  learning_starts:
+    values: [ 50000 ]
+  exploration_final_eps_frame:
+    values: [ 1000000 ]
+  exploration_initial_eps:
+    values: [ 1.0 ]
+  exploration_final_eps:
+    values: [ 0.02 ]
+  discount_factor:
+    values: [ 0.99 ]

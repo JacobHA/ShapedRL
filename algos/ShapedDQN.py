@@ -14,10 +14,10 @@ class ShapedDQN(DQN):
     r --> r + gamma V^(s') - V(s)
     """
 
-    def __init__(self, *args, do_shape:bool=False, no_termination_val=False, **kwargs):
+    def __init__(self, *args, do_shape:bool=False, no_done_mask=False, **kwargs):
         super(ShapedDQN, self).__init__(*args, **kwargs)
         self.do_shape = do_shape
-        self.no_termination_val = no_termination_val
+        self.no_done_mask = no_done_mask
 
     def train(self, gradient_steps: int, batch_size: int = 100) -> None:
         # Switch to train mode (this affects batch norm / dropout)
@@ -47,7 +47,7 @@ class ShapedDQN(DQN):
 
                 rewards = replay_data.rewards
                 
-                if self.no_termination_val:
+                if self.no_done_mask:
                     mask = th.ones_like(replay_data.dones)
                 else:
                     mask = 1 - replay_data.dones
@@ -84,4 +84,4 @@ class ShapedDQN(DQN):
         self.logger.record("train/loss", np.mean(losses))
 
     def __str__(self):
-        return f"s{1 if self.do_shape else 0}t{1 if self.no_termination_val else 0}"
+        return f"s{1 if self.do_shape else 0}t{1 if self.no_done_mask else 0}"
