@@ -41,16 +41,16 @@ def wandb_train(local_cfg=None):
         wandb_kwargs['config'] = local_cfg
     with wandb.init(**wandb_kwargs, sync_tensorboard=True) as r:
         config = wandb.config.as_dict()
-        env_str = config['parameters'].pop('env_id')
-        run(env_str, config['parameters'], total_timesteps=1_200_000, log_freq=1000, device=device, log_dir=f'local-{experiment_name}')
+        env_str = config.pop('env_id')
+        run(env_str, config, total_timesteps=10_000_000, log_freq=1000, device=device, log_dir=f'local-{experiment_name}')
 
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
     args.add_argument("--sweep", type=str, default=None)
-    args.add_argument("--n_runs", type=int, default=100)
+    args.add_argument("--n_runs", type=int, default=10)
     args.add_argument("--proj", type=str, default="shaping")
-    args.add_argument("--local-wandb", type=bool, default=True)
+    args.add_argument("--local-wandb", type=bool, default=False)
     args.add_argument("--exp-name", type=str, default="atari-mini")
     args.add_argument("-d", "--device", type=str, default='cuda')
     args = args.parse_args()
