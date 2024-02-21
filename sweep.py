@@ -8,7 +8,7 @@ from utils import sample_wandb_hyperparams
 
 
 exp_to_config = {
-    # all of the 106 atari environments + hyperparameters. This will take a long time to train.
+    # all of the 62 atari environments + hyperparameters. This will take a long time to train.
     "atari-full": "atari-full-sweep.yml",
     # three of the atari environments
     "atari-mini": "atari-mini-sweep.yml",
