@@ -13,7 +13,9 @@ exp_to_config = {
     # three of the atari environments
     "atari-mini": "atari-mini-sweep.yml",
     # pong only:
-    "atari-pong": "atari-pong-sweep.yml"
+    "atari-pong": "atari-pong-sweep.yml",
+    # 42 of the non v4 atari environments
+    "atari-v5": "atari-v5-sweep.yml",
 }
 int_hparams = {'batch_size', 'buffer_size', 'gradient_steps',
                'target_update_interval', 'theta_update_interval'}
@@ -36,13 +38,13 @@ def wandb_train(local_cfg=None):
     if local_cfg:
         local_cfg["controller"] = {'type': 'local'}
         sampled_params = sample_wandb_hyperparams(local_cfg["parameters"], int_hparams=int_hparams)
-        local_cfg["parameters"] = sampled_params
         print(f"locally sampled params: {sampled_params}")
-        wandb_kwargs['config'] = local_cfg
+        wandb_kwargs['config'] = sampled_params
     with wandb.init(**wandb_kwargs, sync_tensorboard=True) as r:
         config = wandb.config.as_dict()
-        env_str = config['parameters'].pop('env_id')
-        run(env_str, config['parameters'], total_timesteps=1_200_000, log_freq=1000, device=device, log_dir=f'local-{experiment_name}')
+        print(config)
+        env_str = config.pop('env_id')
+        run(env_str, config, total_timesteps=10_000_000, log_freq=1000, device=device, log_dir=f'local-{experiment_name}')
 
 
 if __name__ == "__main__":
@@ -69,8 +71,7 @@ if __name__ == "__main__":
     if args.sweep is None and not args.local_wandb:
         sweep_id = wandb.sweep(sweepcfg, project=project)
         print(f"created new sweep {sweep_id}")
-        wandb.agent(sweep_id, project=args.proj,
-                    count=args.n_runs, function=wandb_train)
+        wandb.agent(sweep_id, project=args.proj, count=args.n_runs, function=wandb_train)
     elif args.local_wandb:
         for i in range(args.n_runs):
             try:
@@ -81,5 +82,4 @@ if __name__ == "__main__":
                 print(e)
     else:
         print(f"continuing sweep {args.sweep}")
-        wandb.agent(args.sweep, project=args.proj,
-                    count=args.n_runs, function=wandb_train)
+        wandb.agent(args.sweep, project=args.proj, count=args.n_runs, function=wandb_train)
