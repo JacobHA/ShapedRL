@@ -51,7 +51,7 @@ if __name__ == "__main__":
     args.add_argument("--sweep", type=str, default=None)
     args.add_argument("--n_runs", type=int, default=10)
     args.add_argument("--proj", type=str, default="shaping")
-    args.add_argument("--local-wandb", type=bool, default=False)
+    args.add_argument("--local-wandb", type=bool, default=True)
     args.add_argument("--exp-name", type=str, default="atari-mini")
     args.add_argument("-d", "--device", type=str, default='cuda')
     args = args.parse_args()
