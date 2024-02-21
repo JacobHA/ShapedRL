@@ -42,7 +42,6 @@ def wandb_train(local_cfg=None):
         wandb_kwargs['config'] = sampled_params
     with wandb.init(**wandb_kwargs, sync_tensorboard=True) as r:
         config = wandb.config.as_dict()
-        print(config)
         env_str = config.pop('env_id')
         run(env_str, config, total_timesteps=10_000_000, log_freq=1000, device=device, log_dir=f'local-{experiment_name}')
 
@@ -50,9 +49,9 @@ def wandb_train(local_cfg=None):
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
     args.add_argument("--sweep", type=str, default=None)
-    args.add_argument("--n_runs", type=int, default=100)
+    args.add_argument("--n_runs", type=int, default=10)
     args.add_argument("--proj", type=str, default="shaping")
-    args.add_argument("--local-wandb", type=bool, default=True)
+    args.add_argument("--local-wandb", type=bool, default=False)
     args.add_argument("--exp-name", type=str, default="atari-mini")
     args.add_argument("-d", "--device", type=str, default='cuda')
     args = args.parse_args()
@@ -71,7 +70,8 @@ if __name__ == "__main__":
     if args.sweep is None and not args.local_wandb:
         sweep_id = wandb.sweep(sweepcfg, project=project)
         print(f"created new sweep {sweep_id}")
-        wandb.agent(sweep_id, project=args.proj, count=args.n_runs, function=wandb_train)
+        wandb.agent(sweep_id, project=args.proj,
+                    count=args.n_runs, function=wandb_train)
     elif args.local_wandb:
         for i in range(args.n_runs):
             try:
@@ -82,4 +82,5 @@ if __name__ == "__main__":
                 print(e)
     else:
         print(f"continuing sweep {args.sweep}")
-        wandb.agent(args.sweep, project=args.proj, count=args.n_runs, function=wandb_train)
+        wandb.agent(args.sweep, project=args.proj,
+                    count=args.n_runs, function=wandb_train)
