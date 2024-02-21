@@ -14,10 +14,16 @@ class ShapedDQN(DQN):
     r --> r + gamma V^(s') - V(s)
     """
 
-    def __init__(self, *args, shaping_mode='none', **kwargs):
+    def __init__(self, *args, shaping_mode='none', use_dones=True, 
+                 use_oracle=False, oracle_path:str='', **kwargs):
         super(ShapedDQN, self).__init__(*args, **kwargs)
         self.shaping_mode = shaping_mode
-
+        self.use_dones = use_dones
+        self.use_oracle = use_oracle
+        self.oracle_path = oracle_path
+        # import the saved Q network:
+        if self.use_oracle:
+            self.shaping_net = th.load(self.oracle_path)
 
     def train(self, gradient_steps: int, batch_size: int = 100) -> None:
         # Switch to train mode (this affects batch norm / dropout)
@@ -46,6 +52,10 @@ class ShapedDQN(DQN):
                 elif self.shaping_mode == 'target':
                     curr_q_values = self.q_net_target(replay_data.observations)
                     next_q_values = self.q_net_target(replay_data.next_observations)
+                elif self.use_oracle:
+                    curr_q_values = self.shaping_net(replay_data.observations)
+                    next_q_values = self.shaping_net(replay_data.next_observations)
+
                 elif self.shaping_mode == 'none':
                     pass
                 
@@ -55,8 +65,10 @@ class ShapedDQN(DQN):
                 if self.shaping_mode != 'none':
                     curr_v_max, _ = curr_q_values.max(dim=1, keepdim=True)
                     next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
-
-                    rewards +=  ((1 - replay_data.dones) * self.gamma * next_v_max - curr_v_max)
+                    if self.use_dones:
+                        rewards += (1 - replay_data.dones) * self.gamma * next_v_max - curr_v_max
+                    else:
+                        rewards +=  self.gamma * next_v_max - curr_v_max
 
                 target_q_values = rewards + \
                     (1 - replay_data.dones) * self.gamma * max_q_value
@@ -86,3 +98,6 @@ class ShapedDQN(DQN):
         self.logger.record("train/n_updates",
                            self._n_updates, exclude="tensorboard")
         self.logger.record("train/loss", np.mean(losses))
+
+    def save_final_model(self, path):
+        th.save(self.q_net, path)
