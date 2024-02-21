@@ -15,9 +15,12 @@ class ShapedDQN(DQN):
     """
 
     def __init__(self, *args, do_shape:bool=False, no_done_mask=False, **kwargs):
-        super(ShapedDQN, self).__init__(*args, **kwargs)
         self.do_shape = do_shape
         self.no_done_mask = no_done_mask
+        self.kwargs = locals()
+        self.kwargs.pop('self')
+        self.kwargs.pop('__class__')
+        super(ShapedDQN, self).__init__(*args, **kwargs)
 
     def train(self, gradient_steps: int, batch_size: int = 100) -> None:
         # Switch to train mode (this affects batch norm / dropout)
@@ -85,3 +88,7 @@ class ShapedDQN(DQN):
 
     def __str__(self):
         return f"s{1 if self.do_shape else 0}t{1 if self.no_done_mask else 0}"
+
+    def save(self, path='./model'):
+        state = self.state_dict()
+        th.save([self.kwargs, state], path)
