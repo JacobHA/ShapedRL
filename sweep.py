@@ -1,80 +1,85 @@
 import argparse
-import json
-from algos import ShapedDQN, ShapedTD3, ShapedSAC
-from stable_baselines3.common.callbacks import EvalCallback
-import gymnasium as gym
 import wandb
+import yaml
+import copy
+from run import run
+
+from utils import sample_wandb_hyperparams
 
 
-ENTITY = "qcoolers"
-DEFAULT_SWEEP_CONFIG = "sweep_config.json"
-env_name = None
-algo = None
-
-algo_to_class = {"dqn": ShapedDQN,
-                 "td3": ShapedTD3,
-                 "sac": ShapedSAC}
-
-same_dqn_atari_hparams = {
-    "AsteroidsNoFrameskip-v4",
-    "SeaquestNoFrameskip-v4",
-    "EnduroNoFrameskip-v4",
-    "QbertNoFrameskip-v4",
-    "SpaceInvadersNoFrameskip-v4",
-    "MsPacmanNoFrameskip-v4",
-    "PongNoFrameskip-v4",
-    "RoadRunnerNoFrameskip-v4",
-    "BreakoutNoFrameskip-v4",
-    "BeamRiderNoFrameskip-v4",
+exp_to_config = {
+    # all of the 106 atari environments + hyperparameters. This will take a long time to train.
+    "atari-full": "atari-full-sweep.yml",
+    # three of the atari environments
+    "atari-mini": "atari-mini-sweep.yml",
+    # pong only:
+    "atari-pong": "atari-pong-sweep.yml"
 }
+int_hparams = {'batch_size', 'buffer_size', 'gradient_steps',
+               'target_update_interval', 'theta_update_interval'}
+device = None
 
 
-def get_hparams(**hyperparams):
-    envname = "AlmostEverythingWithNoFrameskip-v4" if env_name in same_dqn_atari_hparams else env_name
-    with open("hparams.json") as f:
-        config = json.load(f)[algo][envname]
-    config.update(hyperparams)
-    return config
-
-def sample_config():
-    with open(DEFAULT_SWEEP_CONFIG) as f:
-        sweep_config = json.load(f)
-
-    return sweep_config
-
-def wandb_atari():
-    with wandb.init(sync_tensorboard=True) as run:
-        cfg = run.config
-        dict_cfg = cfg.as_dict()
-        hparams = get_hparams(algo, **dict_cfg)
-        env = gym.make(env_name)
-        eval_env = gym.make(env_name)
-
-        model = algo_to_class[algo](env, **hparams)
-        
-        eval_callback = EvalCallback(eval_env, n_eval_episodes=1,
-                                     log_path=f'./runs/{run.id}',
-                                     eval_freq=15_000,
-                                     deterministic=True,
-                                     best_model_save_path=f'./best_model/{run.id}')
-
-        model.learn(cfg.n_timesteps, log_interval=10, tb_log_name="runs", callback=eval_callback)
+def get_sweep_config(sweepcfg, default_config, project_name):
+    cfg = default_config
+    params = cfg['parameters']
+    params.update(sweepcfg['parameters'])
+    cfg.update(sweepcfg)
+    cfg['parameters'] = params
+    cfg['name'] = project_name
+    return cfg
 
 
-if __name__ =="__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--project", type=str, default="bs-rl")
-    parser.add_argument("-s", "--sweepid", type=str, help="sweep id", default=None)
-    parser.add_argument("-n", "--number", type=int, help="number of runs", default=1)
-    parser.add_argument("-e", "--env", type=str, help="gym environment name", required=True)
-    parser.add_argument("-a", "--algo", type=str, help="algorithm name: (dqn, sac, td3)", default="dqn")
-    args = parser.parse_args()
-    if not args.sweepid:
-        with open(DEFAULT_SWEEP_CONFIG) as f:
-            config = json.load(f)
-        sweep_id = wandb.sweep(config, project=args.project)
+def wandb_train(local_cfg=None):
+    """:param local_cfg: pass config sweep if running locally to sample without wandb"""
+    wandb_kwargs = {"project": project, "group": experiment_name}
+    if local_cfg:
+        local_cfg["controller"] = {'type': 'local'}
+        sampled_params = sample_wandb_hyperparams(local_cfg["parameters"], int_hparams=int_hparams)
+        local_cfg["parameters"] = sampled_params
+        print(f"locally sampled params: {sampled_params}")
+        wandb_kwargs['config'] = local_cfg
+    with wandb.init(**wandb_kwargs, sync_tensorboard=True) as r:
+        config = wandb.config.as_dict()
+        env_str = config['parameters'].pop('env_id')
+        run(env_str, config['parameters'], total_timesteps=1_200_000, log_freq=1000, device=device, log_dir=f'local-{experiment_name}')
+
+
+if __name__ == "__main__":
+    args = argparse.ArgumentParser()
+    args.add_argument("--sweep", type=str, default=None)
+    args.add_argument("--n_runs", type=int, default=100)
+    args.add_argument("--proj", type=str, default="shaping")
+    args.add_argument("--local-wandb", type=bool, default=True)
+    args.add_argument("--exp-name", type=str, default="atari-mini")
+    args.add_argument("-d", "--device", type=str, default='cuda')
+    args = args.parse_args()
+    project = args.proj
+    experiment_name = args.exp_name
+    device = args.device
+    # load the default config
+    with open("sweeps/atari-default.yml", "r") as f:
+        default_config = yaml.load(f, yaml.SafeLoader)
+    # load the experiment config
+    with open(f"sweeps/{exp_to_config[experiment_name]}", "r") as f:
+        expsweepcfg = yaml.load(f, yaml.SafeLoader)
+    # combine the two
+    sweepcfg = get_sweep_config(expsweepcfg, default_config, project)
+    # generate a new sweep if one was not passed as an argument
+    if args.sweep is None and not args.local_wandb:
+        sweep_id = wandb.sweep(sweepcfg, project=project)
+        print(f"created new sweep {sweep_id}")
+        wandb.agent(sweep_id, project=args.proj,
+                    count=args.n_runs, function=wandb_train)
+    elif args.local_wandb:
+        for i in range(args.n_runs):
+            try:
+                print(f"running local sweep {i}")
+                wandb_train(local_cfg=copy.deepcopy(sweepcfg))
+            except Exception as e:
+                print(f"failed to run local sweep {i}")
+                print(e)
     else:
-        sweep_id = args.sweepid
-    env_name = args.env
-    algo = args.algo
-    wandb.agent(sweep_id, function=wandb_atari, count=args.number, project=args.project)
+        print(f"continuing sweep {args.sweep}")
+        wandb.agent(args.sweep, project=args.proj,
+                    count=args.n_runs, function=wandb_train)

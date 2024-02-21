@@ -1,3 +1,5 @@
+import json
+
 import gymnasium as gym
 from stable_baselines3.common.env_util import make_atari_env
 from stable_baselines3.common.vec_env import VecFrameStack
@@ -5,6 +7,9 @@ import wandb
 from algos.ShapedDQN import ShapedDQN
 from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.vec_env import vec_transpose, vec_frame_stack
+from gymnasium.wrappers.atari_preprocessing import AtariPreprocessing
+
+env_str = "PongNoFrameskip-v4"
 # There already exists an environment generator that will make and wrap atari environments correctly.
 
 # env_str = "BreakoutNoFrameskip-v4"
@@ -32,6 +37,7 @@ hparams = {
 
 shaping_mode = 'online'
 use_dones = True
+
 # log eval callbacks in the same tensorboard:
 eval_env = make_atari_env(env_str, n_envs=1, seed=0)
 eval_env = vec_frame_stack.VecFrameStack(eval_env, n_stack=4)
