@@ -6,9 +6,10 @@ import numpy as np
 
 
 class ShapedSAC(SAC):
-    def __init__(self, *args, do_shape: bool = False, **kwargs):
+    def __init__(self, *args, shaping_mode: str = 'none', use_dones: bool = True, **kwargs):
         super(ShapedSAC, self).__init__(*args, **kwargs)
-        self.do_shape = do_shape
+        self.shaping_mode = shaping_mode
+        self.use_dones = use_dones
 
     def train(self, gradient_steps: int, batch_size: int = 64) -> None:
         # Switch to train mode (this affects batch norm / dropout)
@@ -70,6 +71,7 @@ class ShapedSAC(SAC):
                 next_actions, next_log_prob = self.actor.action_log_prob(
                     replay_data.next_observations)
                 # Compute the next Q values: min over all critics targets
+                
                 next_q_values = th.cat(self.critic_target(
                     replay_data.next_observations, next_actions), dim=1)
                 next_q_values, _ = th.min(next_q_values, dim=1, keepdim=True)
@@ -80,7 +82,7 @@ class ShapedSAC(SAC):
                     ent_coef * next_log_prob.reshape(-1, 1)
                 # td error + entropy term
                 rewards = replay_data.rewards
-                if self.do_shape:
+                if self.shaping_mode != 'none':
                     # Get the current ent_coef
                     try:
                         # If alpha is being learned, detach it
@@ -88,14 +90,37 @@ class ShapedSAC(SAC):
                     except AttributeError:
                         # otherwise, grab the fixed value:
                         alpha = self.ent_coef
+
+                    if self.shaping_mode == 'target':
+                        potential_model = self.critic_target
+                    elif self.shaping_mode == 'online':
+                        potential_model = self.critic
+                    else:
+                        raise ValueError(f"Shaping mode {self.shaping_mode} not recognized")
+                    
+                    curr_phi = th.cat(
+                            potential_model(replay_data.observations, replay_data.actions),
+                            dim=1)
+
+                    curr_phi, _ = th.min(curr_phi, dim=1, keepdim=True)
+
+                    next_phi = th.cat(
+                            potential_model(replay_data.next_observations, next_actions),
+                            dim=1)
+                    
+                    next_phi, _ = th.min(next_phi, dim=1, keepdim=True)                    
+
                     # Take the logsum exp on the action dimension
                     # of the next q values:
-                    next_v = alpha * \
-                        th.logsumexp(next_q_values/alpha, dim=1, keepdim=True)
-                    curr_v = alpha * th.logsumexp(
-                        current_q_values[0]/alpha, dim=1, keepdim=True)
+                    # next_phi = alpha * \
+                    #     th.logsumexp(next_phi_q/alpha, dim=1, keepdim=True)
+                    # curr_phi = alpha * th.logsumexp(
+                    #     current_q_values[0]/alpha, dim=1, keepdim=True)
 
-                    rewards += (1 - replay_data.dones) * self.gamma * next_v - curr_v
+                    if self.use_dones:
+                        rewards += (1 - replay_data.dones) * self.gamma * next_phi - curr_phi
+                    else:
+                        rewards += self.gamma * next_phi - curr_phi
 
 
                 target_q_values = replay_data.rewards + \
