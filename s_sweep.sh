@@ -28,11 +28,11 @@ DEVICE=${3:-"cuda"}
 #  python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
 #} done
 
-python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
-python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
-python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
-python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
-python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
-python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
-python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
-python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE
+python sweep.py --n_runs=1 --local-wandb=True --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
+python sweep.py --n_runs=1 --local-wandb=True --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
+python sweep.py --n_runs=1 --local-wandb=True --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
+python sweep.py --n_runs=1 --local-wandb=True --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
+python sweep.py --n_runs=1 --local-wandb=True --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
+python sweep.py --n_runs=1 --local-wandb=True --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
+python sweep.py --n_runs=1 --local-wandb=True --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
+python sweep.py --n_runs=1 --local-wandb=True --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE
