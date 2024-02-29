@@ -62,7 +62,8 @@ if __name__ == "__main__":
     parser.add_argument("-s", type=bool, default=True)
     parser.add_argument("-t", type=bool, default=False,
                         help="If true, the done mask is not applied to the potential function")
-    parser.add_argument("-e", "--env", type=str, default="PongNoFrameskip-v4")  # "FrozenLake-v1" "PongNoFrameskip-v4"
+    # parser.add_argument("-e", "--env", type=str, default="PongNoFrameskip-v4")  # "FrozenLake-v1" "PongNoFrameskip-v4"
+    parser.add_argument("-e", "--env", type=str, default="LunarLander-v2")  # "FrozenLake-v1" "PongNoFrameskip-v4"
     args = parser.parse_args()
     do_shape = args.s
     no_done_mask = args.t
