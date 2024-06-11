@@ -9,3 +9,6 @@
 /best_model/
 /videos/
 *.pyc
+*.tfevents.*
+*.npy
+*.png
