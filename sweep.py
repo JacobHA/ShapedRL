@@ -16,6 +16,10 @@ exp_to_config = {
     "atari-pong": "atari-pong-sweep.yml",
     # 42 of the non v4 atari environments
     "atari-v5": "atari-v5-sweep.yml",
+    # Pong only, sweeping scale parameter:
+    "pong-eta": "pong-scale-sweep.yml",
+    # All envs, eta sweep:
+    "eta-sweep": "scale-sweep.yml",
 }
 int_hparams = {'batch_size', 'buffer_size', 'gradient_steps',
                'target_update_interval', 'theta_update_interval'}
@@ -49,8 +53,8 @@ def wandb_train(local_cfg=None):
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
     args.add_argument("--sweep", type=str, default=None)
-    args.add_argument("--n_runs", type=int, default=10)
-    args.add_argument("--proj", type=str, default="shaping")
+    args.add_argument("--n_runs", type=int, default=100)
+    args.add_argument("--proj", type=str, default="bs-shaping")
     args.add_argument("--local-wandb", type=bool, default=True)
     args.add_argument("--exp-name", type=str, default="atari-mini")
     args.add_argument("-d", "--device", type=str, default='cuda')
