@@ -71,7 +71,7 @@ class DynamicQLearning():
         norm = self.norm if self.norm != 0 else 1
         norm = np.tanh(self.prev_norm / norm)
         phi = self.eta * V * norm #/ np.log(self.times[-1])
-        print(norm)
+        # print(norm)
         # shape the reward:
         reward += self.gamma * phi[next_state] - phi[state]
 
@@ -116,7 +116,7 @@ class DynamicQLearning():
             if steps % eval_freq == 0:
                 eval_rwd = self.evaluate(1, render=False, greedy=greedy_eval)
                 total_reward += eval_rwd
-                # print(f'steps={steps}, eval_rwd={eval_rwd:.2f}')
+                print(f'steps={steps}, eval_rwd={eval_rwd:.2f}')
                 self.reward_over_time.append(eval_rwd)
                 # print(np.abs(self.Q).mean())
 
@@ -170,7 +170,7 @@ def main(env_str, gamma, save=True, lr=None, prefix=None):
                       save_data=save,
                       prefix=prefix,
                       )
-    max_steps = 10000_000
+    max_steps = 10_000
 
     total_reward = sarsa.train(max_steps, render=False, greedy_eval=True, eval_freq=100)
     return total_reward
@@ -179,10 +179,10 @@ def main(env_str, gamma, save=True, lr=None, prefix=None):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env', type=str, default='7x7wall')
-    parser.add_argument('--gamma', type=float, default=0.97)
+    parser.add_argument('--env', type=str, default='7x7zigzag')
+    parser.add_argument('--gamma', type=float, default=0.98)
     parser.add_argument('-n', type=int, default=1)
     args = parser.parse_args()
 
     for _ in range(args.n):
-        main(env_str=args.env, gamma=args.gamma, lr=1)
+        main(env_str=args.env, gamma=args.gamma, lr=0.9)
