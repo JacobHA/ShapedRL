@@ -76,7 +76,7 @@ class QLearning():
     #     return delta
     def learn(self, state, action, reward, next_state, done):
         # shape the reward:
-        reward += self.gamma * self.phi[next_state] - self.phi[state]
+        reward += self.gamma * (1-done)* self.phi[next_state] - self.phi[state]
 
         # Compute the TD error:
         next_V = self.V_from_Q(self.Q)[next_state]

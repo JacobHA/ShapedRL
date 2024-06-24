@@ -7,11 +7,9 @@
   "gradient_steps": -1,
   "learning_rate": 0.00063,
   "learning_starts": 0,
-  "policy": "MlpPolicy",
   "policy_kwargs": {"net_arch": [256, 256] },
   "target_update_interval": 250,
   "train_freq": 4,
-  "normalize": false,
   "total_timesteps": 100000,
   "log_freq": 100
 }

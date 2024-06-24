@@ -9,4 +9,6 @@ parameters:
   do_shape:
     values: [ "True" ]
   shape_scale:
-    values: [0.0, 1.0, 1.5, 2.0, 2.5 ]
+    values: [1.5]
+  exploration_fraction:
+    values: [ 0.5 ]

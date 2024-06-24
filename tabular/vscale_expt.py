@@ -33,11 +33,15 @@ print(f'Optimal reward: {total_reward}')
 
 
 
-alphas = np.linspace(-0.15, 0.15, 25)
-alphas = [-1.5, -1,-0.5,0,0.5,1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
+alphas = np.linspace(-0.01, 0.03, 8)
+# add zero
+if 0 not in alphas:
+    alphas = np.concatenate(([0], alphas))
+alphas = np.sort(alphas)
+# alphas = [-1.5, -1,-0.5,0,0.5,1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
 alpha_to_rwd_aucs = {}
 alpha_to_rwd_stds = {}
-def experiment(alpha, num_trials = 6):
+def experiment(alpha, num_trials = 10):
     trial_rwds = np.zeros(num_trials)
     for trial in range(num_trials):
         # Now create the Q-learning agent:

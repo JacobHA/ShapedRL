@@ -63,8 +63,9 @@ class ShapedDQN(DQN):
 
                     # TODO: Experiment with weight schedule?
                     # weight = -0.03#1 #- self.exploration_rate
-
-                    rewards += self.shape_scale * (dones_mask * self.gamma * next_v_max - curr_v_max)
+                    eta = self.shape_scale #* self.exploration_rate
+                    # eta = self.shape_scale
+                    rewards += eta * (dones_mask * self.gamma * next_v_max - curr_v_max)
 
                 target_q_values = rewards + (1 - replay_data.dones) * self.gamma * max_q_value
 

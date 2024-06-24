@@ -19,6 +19,6 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib
 
 # python test_oracle.py
 # python atari_run.py
-python sweep.py &
-python sweep.py &
-python sweep.py --exp-name 'atari-v5' --local-wandb False
+# python sweep.py &
+# python sweep.py &
+python sweep.py --exp-name 'eta-sweep'

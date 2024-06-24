@@ -1,0 +1,28 @@
+metric:
+  goal: maximize
+  name: eval/auc
+parameters:
+  env_id:
+    values: [ "Acrobot-v1" ]
+  batch_size: 
+    values: [64]
+  beta: 
+    values: [4.5]
+  gradient_steps: 
+    values: [20]
+  hidden_dim: 
+    values: [64]
+  learning_rate: 
+    values: [0.0005]
+  soft_weight: 
+    values: [6]
+  target_update_interval: 
+    values: [10]
+  train_freq: 
+    values: [2]
+  learning_starts: 
+    values: [0]
+  total_timesteps:
+    values: [10000]
+  log_freq:
+    values: [200]
