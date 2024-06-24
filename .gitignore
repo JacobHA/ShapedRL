@@ -9,3 +9,4 @@
 /best_model/
 /videos/
 *.pyc
+*.tfevents.*
