@@ -45,7 +45,7 @@ def run(env_str, hparams, total_timesteps, log_freq, device='cuda', log_dir="./r
                     verbose=1,)
 
     model = ShapedDQN(policy, env, **hparams,
-                    verbose=4, device=device, 
+                    verbose=1, device=device, 
                     tensorboard_log=log_dir
                     )
     model.learn(total_timesteps, log_interval=log_freq,

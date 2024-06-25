@@ -8,10 +8,10 @@ python experiment.py
 ```
 
 # TODOs:
-- [x] Add a ShapedTD3 class
+- [ ] Fix SAC/TD3 classes for sampling continuous actions to calculate V(s) and V(s')
 - [x] Automatically choose the sweep config.yml file based on model used
 - [ ] Clean up sweep id configuration
-- [ ] Clean up eval callback 
+- [x] Clean up eval callback 
 
 # Related Work:
 - https://arxiv.org/pdf/2011.02669.pdf
