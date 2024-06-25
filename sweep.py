@@ -40,7 +40,7 @@ def get_sweep_config(sweepcfg, default_config, project_name):
 
 def wandb_train(local_cfg=None):
     """:param local_cfg: pass config sweep if running locally to sample without wandb"""
-    wandb_kwargs = {"project": project, "group": experiment_name}
+    wandb_kwargs = {"project": project, "group": experiment_name, "dir": log_dir}
     if local_cfg:
         local_cfg["controller"] = {'type': 'local'}
         sampled_params = sample_wandb_hyperparams(local_cfg["parameters"], int_hparams=int_hparams)

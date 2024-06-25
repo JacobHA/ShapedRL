@@ -4,7 +4,7 @@ import argparse
 import gymnasium as gym
 
 from stable_baselines3.common.env_util import make_atari_env
-from stable_baselines3.common.vec_env import VecFrameStack, VecTransposeImage
+from stable_baselines3.common.vec_env import VecFrameStack, VecTransposeImage, VecVideoRecorder
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.callbacks import EvalCallback
 
@@ -33,10 +33,20 @@ def run(env_str, hparams, total_timesteps, log_freq, device='cuda', log_dir="./r
         env = make_atari_env(env_str, n_envs=1, seed=42)
         env = VecFrameStack(env, n_stack=4)
         env = VecTransposeImage(env)
-        # eval
+        
         eval_env = make_atari_env(env_str, n_envs=1, seed=42)
+        # set the render fps to 60:
+        eval_env.metadata['render_fps'] = 60
+        # TODO: This is not working (above)!
+        # To fix, I had to add the following lines to `moviepy.video.io.ffmpeg_writer.py` in ffmpeg_write_video
+        
+        # if fps is None:
+        #     print("The 'fps' parameter of write_videofile was not set. Setting fps=60.")
+        #     fps = 60
+
         eval_env = VecFrameStack(eval_env, n_stack=4)
         eval_env = VecTransposeImage(eval_env)
+        eval_env = VecVideoRecorder(eval_env, f"{log_dir}/{env_str}", record_video_trigger=lambda x: x == 0, video_length=10000)
         policy = "CnnPolicy"
     else:
         env = gym.make(env_str, **env_kwargs)
@@ -44,18 +54,21 @@ def run(env_str, hparams, total_timesteps, log_freq, device='cuda', log_dir="./r
         eval_env = Monitor(eval_env)
         policy = "MlpPolicy"
 
-    eval_callback = EvalCallback(eval_env, n_eval_episodes=20,
-                    log_path=f'./runs/',
-                    eval_freq=EVAL_FREQ,
-                    deterministic=True,
-                    verbose=1,)
+    eval_callback = EvalCallback(eval_env, n_eval_episodes=5,
+                                log_path=f'./runs/',
+                                eval_freq=EVAL_FREQ,
+                                deterministic=True,
+                                verbose=1,
+                                )
 
     model = ShapedDQN(policy, env, **hparams,
                     verbose=1, device=device, 
                     tensorboard_log=log_dir
                     )
-    model.learn(total_timesteps, log_interval=log_freq,
-        callback=eval_callback, tb_log_name=str(model)+env_str+f'-det={det}'
+    model.learn(total_timesteps,
+                log_interval=log_freq,
+                callback=eval_callback,
+                tb_log_name=str(model)+env_str+f'-det={det}'
     )
     # model = DQN(policy, env, verbose=4, **hparams, device='cuda', tensorboard_log="./runs")
     # model.learn(total_timesteps, log_interval=10, callback=eval_callback, tb_log_name="DQN"+env_str+f'-det={det}')
@@ -78,4 +91,4 @@ if __name__ == "__main__":
     log_freq = hparams.pop('log_freq')
     hparams['do_shape'] = do_shape
     hparams['no_done_mask'] = no_done_mask
-    run(env_str, hparams, total_timesteps, log_freq, 'cuda')
+    run(env_str, hparams, total_timesteps, log_freq, 'auto')
