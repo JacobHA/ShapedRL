@@ -1,11 +1,13 @@
 import argparse
+import os
 import wandb
 import yaml
 import copy
 from run import run
-
 from utils import sample_wandb_hyperparams
 
+# use the global wandb log directory
+log_dir = os.environ.get("WANDB_DIR", "./logs")
 
 exp_to_config = {
     # all of the 62 atari environments + hyperparameters. This will take a long time to train.
@@ -47,7 +49,7 @@ def wandb_train(local_cfg=None):
     with wandb.init(**wandb_kwargs, sync_tensorboard=True) as r:
         config = wandb.config.as_dict()
         env_str = config.pop('env_id')
-        run(env_str, config, total_timesteps=10_000_000, log_freq=1000, device=device, log_dir=f'local-{experiment_name}')
+        run(env_str, config, total_timesteps=10_000_000, log_freq=1000, device=device, log_dir=f'{log_dir}/{experiment_name}')
 
 
 if __name__ == "__main__":
