@@ -15,8 +15,10 @@ class ShapedDQN(DQN):
     """
 
     def __init__(self, *args, do_shape:bool=False, no_done_mask:bool=False,
+                 shape_scale:float=1.0,
                  use_oracle=False, oracle_path:str='', **kwargs):
         self.do_shape = do_shape
+        self.shape_scale = shape_scale
         self.no_done_mask = no_done_mask
         self.use_oracle = use_oracle
         self.oracle_path = oracle_path
@@ -60,8 +62,9 @@ class ShapedDQN(DQN):
 
 
                     # TODO: Experiment with weight schedule?
-                    weight = 1 #- self.exploration_rate
-                    rewards += weight * (dones_mask * self.gamma * next_v_max - curr_v_max)
+                    # weight = -0.03#1 #- self.exploration_rate
+
+                    rewards += self.shape_scale * (dones_mask * self.gamma * next_v_max - curr_v_max)
 
                 target_q_values = rewards + (1 - replay_data.dones) * self.gamma * max_q_value
 

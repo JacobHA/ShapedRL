@@ -10,3 +10,5 @@
 /videos/
 *.pyc
 *.tfevents.*
+*.npy
+*.png
