@@ -70,10 +70,11 @@ class DynamicQLearning():
         V = self.V_from_Q(self.Q)
         norm = self.norm if self.norm != 0 else 1
         norm = np.tanh(self.prev_norm / norm)
-        phi = self.eta * V * norm #/ np.log(self.times[-1])
+        # phi = self.eta * V * norm #/ np.log(self.times[-1])
+        phi = self.eta * V
         # print(norm)
         # shape the reward:
-        reward += self.gamma * phi[next_state] - phi[state]
+        reward += self.gamma * (1-done) * phi[next_state] - phi[state]
 
         # Compute the TD error:
         next_V = V[next_state]

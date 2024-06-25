@@ -21,7 +21,7 @@ if 0 not in etas:
 # sort the etas:
 etas = np.sort(etas)
 
-def experiment(eta, num_trials = 20):
+def experiment(eta, num_trials = 5):
     trial_rwds = np.zeros(num_trials)
     trial_meanQ = np.zeros(num_trials)
     for trial in range(num_trials):
@@ -36,7 +36,7 @@ def experiment(eta, num_trials = 20):
     return np.mean(trial_meanQ), np.std(trial_meanQ), np.mean(trial_rwds), np.std(trial_rwds)
 
 from multiprocessing import Pool
-with Pool(24) as p:
+with Pool(16) as p:
     q_means, q_stds, r_means, r_stds = zip(*p.map(experiment, etas))
 
 

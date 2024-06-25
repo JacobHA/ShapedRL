@@ -1,0 +1,30 @@
+metric:
+  goal: maximize
+  name: eval/auc
+parameters:
+  env_id:
+    values: [ "Acrobot-v1" ]
+  no_done_mask:
+    values: [ "True" ]
+  do_shape:
+    values: [ "True" ]
+  shape_scale:
+    values: [ -0.005]
+  exploration_fraction:
+    values: [ 0.5 ]
+  batch_size:
+    values: [ 64 ]
+  buffer_size:
+    values: [ 10000 ]
+  gradient_steps:
+    values: [ 1 ]
+  learning_rate:
+    values: [ 0.001 ]
+  target_update_interval:
+    values: [ 100 ]
+  train_freq:
+    values: [ 1 ]
+  learning_starts:
+    values: [ 0 ]
+  exploration_final_eps:
+    values: [ 0.02 ]

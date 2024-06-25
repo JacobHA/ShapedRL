@@ -17,21 +17,8 @@ conda activate /home/jacob_adamczyk001_umb_edu/.conda/envs/rlenv
 export CPATH=$CPATH:$CONDA_PREFIX/include
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib
 
-# Set the Weights and Biases environment variables
-export WANDB_MODE=offline
-wandb offline
-
-# Start the evaluations
-EXPERIMENT=${1:-"atari-full"}
-N_PARALLEL_JOBS=${2:-5}
-DEVICE=${3:-"cuda"}
-# echo "starting $N_PARALLEL_JOBS tasks"
-# parallel --jobs N_PARALLEL_JOBS python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE
-#for i in {1..5}; do {
-#  python sweep.py --n_runs=1 --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
-#} done
-
-python sweep.py --n_runs=1 --local-wandb=True --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
-python sweep.py --n_runs=1 --local-wandb=True --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
-python sweep.py --n_runs=1 --local-wandb=True --proj=shaping --exp-name=$EXPERIMENT -d $DEVICE &
-wait
+# python test_oracle.py
+# python atari_run.py
+# python sweep.py &
+# python sweep.py &
+python sweep.py --exp-name 'eta-sweep'
