@@ -4,7 +4,7 @@ import wandb
 import yaml
 import copy
 from run import run
-from utils import sample_wandb_hyperparams
+from wandb_utils import sample_wandb_hyperparams
 
 # use the global wandb log directory
 log_dir = os.environ.get("WANDB_DIR", "./logs")

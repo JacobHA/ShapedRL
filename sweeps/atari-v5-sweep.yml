@@ -3,7 +3,10 @@ metric:
   name: eval/auc
 parameters:
   env_id:
-    values: ['ALE/Atlantis2-v5', 'ALE/Backgammon-v5', 'ALE/BasicMath-v5', 'ALE/Blackjack-v5', 'ALE/Casino-v5', 'ALE/Crossbow-v5', 'ALE/Darkchambers-v5', 'ALE/DonkeyKong-v5', 'ALE/Earthworld-v5', 'ALE/Entombed-v5', 'ALE/Et-v5', 'ALE/FlagCapture-v5', 'ALE/Frogger-v5', 'ALE/Galaxian-v5', 'ALE/Hangman-v5', 'ALE/HauntedHouse-v5', 'ALE/HumanCannonball-v5', 'ALE/Kaboom-v5', 'ALE/KeystoneKapers-v5', 'ALE/KingKong-v5', 'ALE/Klax-v5', 'ALE/Koolaid-v5', 'ALE/LaserGates-v5', 'ALE/LostLuggage-v5', 'ALE/MarioBros-v5', 'ALE/MiniatureGolf-v5', 'ALE/MrDo-v5', 'ALE/Othello-v5', 'ALE/Pacman-v5', 'ALE/Pitfall2-v5', 'ALE/SirLancelot-v5', 'ALE/SpaceWar-v5', 'ALE/Superman-v5', 'ALE/Surround-v5', 'ALE/Tetris-v5', 'ALE/TicTacToe3D-v5', 'ALE/Trondead-v5', 'ALE/Turmoil-v5', 'ALE/VideoCheckers-v5', 'ALE/VideoChess-v5', 'ALE/VideoCube-v5', 'ALE/WordZapper-v5']
+    values:
+      - 'ALE/Breakout-v5'
+  # env_ids:
+  #   values: ['ALE/Atlantis2-v5', 'ALE/Backgammon-v5', 'ALE/BasicMath-v5', 'ALE/Blackjack-v5', 'ALE/Casino-v5', 'ALE/Crossbow-v5', 'ALE/Darkchambers-v5', 'ALE/DonkeyKong-v5', 'ALE/Earthworld-v5', 'ALE/Entombed-v5', 'ALE/Et-v5', 'ALE/FlagCapture-v5', 'ALE/Frogger-v5', 'ALE/Galaxian-v5', 'ALE/Hangman-v5', 'ALE/HauntedHouse-v5', 'ALE/HumanCannonball-v5', 'ALE/Kaboom-v5', 'ALE/KeystoneKapers-v5', 'ALE/KingKong-v5', 'ALE/Klax-v5', 'ALE/Koolaid-v5', 'ALE/LaserGates-v5', 'ALE/LostLuggage-v5', 'ALE/MarioBros-v5', 'ALE/MiniatureGolf-v5', 'ALE/MrDo-v5', 'ALE/Othello-v5', 'ALE/Pacman-v5', 'ALE/Pitfall2-v5', 'ALE/SirLancelot-v5', 'ALE/SpaceWar-v5', 'ALE/Superman-v5', 'ALE/Surround-v5', 'ALE/Tetris-v5', 'ALE/TicTacToe3D-v5', 'ALE/Trondead-v5', 'ALE/Turmoil-v5', 'ALE/VideoCheckers-v5', 'ALE/VideoChess-v5', 'ALE/VideoCube-v5', 'ALE/WordZapper-v5']
   no_done_mask:
     values: [ "True", "False" ]
   do_shape:
