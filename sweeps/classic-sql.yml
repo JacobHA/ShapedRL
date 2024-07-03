@@ -15,7 +15,7 @@ parameters:
   learning_rate: 
     values: [0.0005]
   soft_weight: 
-    values: [6]
+    values: [20.001]
   target_update_interval: 
     values: [10]
   train_freq: 
@@ -25,4 +25,4 @@ parameters:
   total_timesteps:
     values: [10000]
   log_freq:
-    values: [200]
+    values: [40]
