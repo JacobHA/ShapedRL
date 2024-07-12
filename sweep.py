@@ -61,7 +61,7 @@ if __name__ == "__main__":
     args.add_argument("--proj", type=str, default="bs-shaping")
     args.add_argument("--local-wandb", type=bool, default=True)
     args.add_argument("--exp-name", type=str, default="atari-mini")
-    args.add_argument("-d", "--device", type=str, default='cuda')
+    args.add_argument("-d", "--device", type=str, default='auto')
     args = args.parse_args()
     project = args.proj
     experiment_name = args.exp_name
