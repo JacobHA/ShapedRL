@@ -9,7 +9,7 @@ parameters:
   do_shape:
     values: [ "True" ]
   shape_scale:
-    values: [ -0.005]
+    values: [ -0.005, 0, 0.005, 1, 3, 6]
   exploration_fraction:
     values: [ 0.5 ]
   batch_size:
@@ -21,7 +21,7 @@ parameters:
   learning_rate:
     values: [ 0.001 ]
   target_update_interval:
-    values: [ 100 ]
+    values: [ 20 ]
   train_freq:
     values: [ 1 ]
   learning_starts:
