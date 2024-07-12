@@ -4,7 +4,7 @@ import torch
 import wandb
 from .BaseAgent import BaseAgent
 from .Models import SoftQNet, OnlineSoftQNets, Optimizers, TargetNets
-from utils import logger_at_folder
+from wandb_utils import logger_at_folder
 
 class ShapedSQL(BaseAgent):
     def __init__(self,

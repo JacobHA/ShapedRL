@@ -7,7 +7,7 @@ import gymnasium as gym
 from typing import Optional, Union, Tuple
 from typeguard import typechecked
 import wandb
-from utils import log_class_vars, env_id_to_envs
+from wandb_utils import log_class_vars, env_id_to_envs
 
 HPARAM_ATTRS = {
     'beta': 'beta',

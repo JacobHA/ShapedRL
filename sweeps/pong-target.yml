@@ -1,0 +1,18 @@
+metric:
+  goal: maximize
+  name: eval/auc
+parameters:
+  env_id:
+    values: [ "PongNoFrameskip-v4" ]
+  no_done_mask:
+    values: [ "True" ]
+  do_shape:
+    values: [ "True" ]
+  use_target:
+    values: [ "True" , "False" ]
+  shape_scale:
+    values: [0.0, 1.0 ]
+  total_timesteps:
+    values: [1000000]
+  exploration_fraction:
+    values: [0.5]

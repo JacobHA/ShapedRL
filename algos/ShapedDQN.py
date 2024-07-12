@@ -16,10 +16,12 @@ class ShapedDQN(DQN):
 
     def __init__(self, *args, do_shape:bool=False, no_done_mask:bool=False,
                  shape_scale:float=1.0,
+                 use_target:bool=False,
                  use_oracle=False, oracle_path:str='', **kwargs):
         self.do_shape = do_shape
         self.shape_scale = shape_scale
         self.no_done_mask = no_done_mask
+        self.use_target = use_target
         self.use_oracle = use_oracle
         self.oracle_path = oracle_path
         # import the saved Q network:
@@ -42,13 +44,16 @@ class ShapedDQN(DQN):
             replay_data = self.replay_buffer.sample(
                 batch_size, env=self._vec_normalize_env)
 
+            online_next_q_value = self.policy.q_net(replay_data.next_observations)
+            online_max_q_value, _ = online_next_q_value.max(dim=1, keepdim=True)
+            online_max_q_value = online_max_q_value.reshape(-1, 1)
             with th.no_grad():
                 # Compute the next Q-values using the target network
                 next_q_value = self.q_net_target(replay_data.next_observations)
                 # Follow greedy policy: use the one with the highest value
                 max_q_value, _ = next_q_value.max(dim=1, keepdim=True)
                 # Avoid potential broadcast issue
-                max_q_value = max_q_value.reshape(-1, 1)
+                target_max_q_value = max_q_value.reshape(-1, 1)
 
                 rewards = replay_data.rewards
 
@@ -66,7 +71,12 @@ class ShapedDQN(DQN):
 
                     rewards += self.shape_scale * (dones_mask * self.gamma * next_v_max - curr_v_max)
 
-                target_q_values = rewards + (1 - replay_data.dones) * self.gamma * max_q_value
+                # use online only:
+                if self.use_target:
+                    target_q_values = rewards + (1 - replay_data.dones) * self.gamma * target_max_q_value
+                else:
+                    # Compute the target Q values
+                    target_q_values = rewards + (1 - replay_data.dones) * self.gamma * online_max_q_value
 
             # Get current Q-values estimates
             current_q_values = self.q_net(replay_data.observations)

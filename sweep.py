@@ -24,10 +24,12 @@ exp_to_config = {
     "eta-sweep": "scale-sweep.yml",
     # classic control:
     "classic": "classic-sweep.yml",
-    "classic-sql": "classic-sql.yml"
+    "classic-sql": "classic-sql.yml",
+    "pong-target": "pong-target.yml",
+
 }
 int_hparams = {'batch_size', 'buffer_size', 'gradient_steps',
-               'target_update_interval', 'theta_update_interval'}
+               'target_update_interval'}
 device = None
 
 

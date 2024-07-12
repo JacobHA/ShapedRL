@@ -64,18 +64,18 @@ def run(env_str, hparams, total_timesteps, log_freq, device='cuda', log_dir="./r
                                 deterministic=True,
                                 verbose=1,
                                 )
-    log_freq = hparams.pop('log_freq')
-    model = ShapedSQL(policy, env, **hparams,
-                    verbose=1, device=device, 
-                    tensorboard_log=log_dir
-                    )
-    model.learn(total_timesteps,
-                log_interval=log_freq,
-                callback=eval_callback,
-                tb_log_name=str(model)+env_str+f'-det={det}'
-    )
-    # model = DQN(policy, env, verbose=4, **hparams, device='cuda', tensorboard_log="./runs")
-    # model.learn(total_timesteps, log_interval=10, callback=eval_callback, tb_log_name="DQN"+env_str+f'-det={det}')
+    # log_freq = hparams.pop('log_freq')
+    # model = ShapedSQL(policy, env, **hparams,
+    #                 verbose=1, device=device, 
+    #                 tensorboard_log=log_dir
+    #                 )
+    # model.learn(total_timesteps,
+    #             log_interval=log_freq,
+    #             callback=eval_callback,
+    #             tb_log_name=str(model)+env_str+f'-det={det}'
+    # )
+    model = ShapedDQN(policy, env, verbose=4, **hparams, device='cuda', tensorboard_log="./runs")
+    model.learn(total_timesteps, log_interval=10, callback=eval_callback, tb_log_name="DQN"+env_str+f'-det={det}')
 
 
 if __name__ == "__main__":
