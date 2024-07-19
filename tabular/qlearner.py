@@ -39,7 +39,8 @@ class QLearning():
             self.path = path
         
         # random initialization:
-        self.Q = np.random.rand(self.nS, self.nA) - 1/ (1 - self.gamma)
+        self.Q = np.random.rand(self.nS, self.nA) #- 1/ (1 - self.gamma)
+        self.Q = np.zeros((self.nS, self.nA))
         # self.Q = np.ones((self.nS, self.nA)) * 0.5 / (1 - self.gamma)
 
         self.reward_over_time = []
@@ -119,7 +120,7 @@ class QLearning():
             if steps % eval_freq == 0:
                 eval_rwd = self.evaluate(1, render=False, greedy=greedy_eval)
                 total_reward += eval_rwd
-                print(f'steps={steps}, eval_rwd={eval_rwd:.2f}')
+                # print(f'steps={steps}, eval_rwd={eval_rwd:.2f}')
                 self.reward_over_time.append(eval_rwd)
 
                 if self.save_data:
