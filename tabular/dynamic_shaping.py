@@ -38,8 +38,8 @@ class DynamicQLearning():
         
         # random initialization:
         # self.Q = np.zeros((self.nS, self.nA))
-        self.Q = np.random.rand(self.nS, self.nA) - np.ones((self.nS, self.nA))/ (1 - self.gamma)
-        # self.Q /= (1+self.eta)
+        self.Q = np.random.rand(self.nS, self.nA) #+ np.ones((self.nS, self.nA))/ (1 - self.gamma)
+        # self.Q -= self.eta / (1+self.eta)
         # self.Q = np.ones((self.nS, self.nA)) * 0.5 / (1 - self.gamma)
 
         self.reward_over_time = []
@@ -68,8 +68,8 @@ class DynamicQLearning():
         
     def learn(self, state, action, reward, next_state, done):
         V = self.V_from_Q(self.Q)
-        norm = self.norm if self.norm != 0 else 1
-        norm = np.tanh(self.prev_norm / norm)
+        # norm = self.norm if self.norm != 0 else 1
+        # norm = np.tanh(self.prev_norm / norm)
         # phi = self.eta * V * norm #/ np.log(self.times[-1])
         phi = self.eta * V
         # print(norm)
@@ -117,7 +117,7 @@ class DynamicQLearning():
             if steps % eval_freq == 0:
                 eval_rwd = self.evaluate(1, render=False, greedy=greedy_eval)
                 total_reward += eval_rwd
-                print(f'steps={steps}, eval_rwd={eval_rwd:.2f}')
+                # print(f'steps={steps}, eval_rwd={eval_rwd:.2f}')
                 self.reward_over_time.append(eval_rwd)
                 # print(np.abs(self.Q).mean())
 
