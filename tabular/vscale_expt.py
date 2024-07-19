@@ -8,14 +8,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from gymnasium.wrappers import TimeLimit
 
-map_name = '7x7wall'
-
+map_name = '10x10empty'
+GAMMA = 0.98
 
 # First solve the MDP:
 env = ModifiedFrozenLake(map_name=map_name, slippery=0)
 env = TimeLimit(env, max_episode_steps=100)
 
-Q,V,pi = q_solver(env, gamma=0.99, steps=10000)
+Q,V,pi = q_solver(env, gamma=GAMMA, steps=10000)
 
 # run the policy:
 total_reward = 0
@@ -33,7 +33,8 @@ print(f'Optimal reward: {total_reward}')
 
 
 
-alphas = np.linspace(-0.01, 0.03, 8)
+alphas = np.linspace(-0.01, 0.03, 3)
+alphas = [0, 1]
 # add zero
 if 0 not in alphas:
     alphas = np.concatenate(([0], alphas))
@@ -45,7 +46,7 @@ def experiment(alpha, num_trials = 10):
     trial_rwds = np.zeros(num_trials)
     for trial in range(num_trials):
         # Now create the Q-learning agent:
-        agent = QLearning(env, gamma=0.95, learning_rate=1, phi=alpha * V.flatten(), # + alpha * np.random.uniform(-1, 1, V.shape).flatten(),
+        agent = QLearning(env, gamma=GAMMA, learning_rate=1, phi=alpha * V.flatten(), # + alpha * np.random.uniform(-1, 1, V.shape).flatten(),
                         save_data=False,
                         prefix=f'a={alpha}')
         agent.train(30000)
