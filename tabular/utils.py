@@ -776,6 +776,18 @@ MAPS = {
         "FFFFFFGF",
         "FFFFFFFF",
     ],
+    "10x10empty": [
+        "SFFFFFFFFF",
+        "FFFFFFFFFF",
+        "FFFFFFFFFF",
+        "FFFFFFFFFF",
+        "FFFFFFFFFF",
+        "FFFFFFFFFF",
+        "FFFFFFFFFF",
+        "FFFFFFFFFF",
+        "FFFFFFFFFF",
+        "FFFFFFFFFG",
+    ],
     "10x10candy": [
         "FFFFFFFFFF",
         "FFFFFFFFFF",
