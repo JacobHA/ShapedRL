@@ -19,6 +19,20 @@ env = TimeLimit(env, max_episode_steps=100)
 
 Q,V,pi = q_solver(env, gamma=GAMMA, steps=1000000)
 
+# Get the manhattan distance to goal in last state (corner):
+manhattan_phi = np.zeros(V.shape)
+for s in range(V.shape[0]):
+    # Get the x,y coordinates of the state:
+    x = s % 10
+    y = s // 10
+    # Get the x,y coordinates of the goal:
+    x_goal = 9
+    y_goal = 9
+    manhattan_phi[s] = np.abs(x - x_goal) + np.abs(y - y_goal)
+
+# display the manhattan distance:
+plt.imshow(manhattan_phi.reshape((10,10)))
+
 # run the policy:
 optimal_reward = 0
 
@@ -53,12 +67,10 @@ def experiment(alpha, num_trials = 15):
     for trial in range(num_trials):
         # Now create the Q-learning agent:
         agent = QLearning(env, gamma=GAMMA, learning_rate=1, 
-                          phi=alpha * V.flatten(),
+                          phi=alpha * manhattan_phi.flatten(),
                         save_data=False,
                         prefix=f'a={alpha}')
-        # agent = DynamicQLearning(env, gamma=GAMMA, learning_rate=1.0, eta=alpha, # + alpha * np.random.uniform(-1, 1, V.shape).flatten(),
-        #                         save_data=False,
-        #                         prefix=f'a={alpha}')
+
         agent.train(train_timesteps, eval_freq=EVAL_FREQ)
         trial_rwds[trial] = sum(agent.reward_over_time) / len(agent.reward_over_time)
         reward_curves[trial, :] = agent.reward_over_time

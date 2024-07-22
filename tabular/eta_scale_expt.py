@@ -8,13 +8,14 @@ import matplotlib.pyplot as plt
 from gymnasium.wrappers import TimeLimit
 from utils import ModifiedFrozenLake
 
-map_name = '7x7wall'
+map_name = '10x10empty'
+GAMMA = 0.98
 env = ModifiedFrozenLake(map_name=map_name, slippery=0)
 env = TimeLimit(env, max_episode_steps=500)
 
 etas = np.linspace(-0.95, 0.5, 24)
 # etas = np.linspace(-0.1, 0.05, 6)
-
+etas = [0, 1]
 # add the zero eta if not there:
 if 0 not in etas:
     etas = np.concatenate(([0], etas))
@@ -26,7 +27,7 @@ def experiment(eta, num_trials = 5):
     trial_meanQ = np.zeros(num_trials)
     for trial in range(num_trials):
         # Now create the Q-learning agent:
-        agent = DynamicQLearning(env, gamma=0.97, learning_rate=0.9, eta=eta,
+        agent = DynamicQLearning(env, gamma=GAMMA, learning_rate=0.9, eta=eta,
                         save_data=False,
                         prefix=f'a={eta}')
         agent.train(10_000)
