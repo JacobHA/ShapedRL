@@ -1,5 +1,8 @@
 import argparse
 import os
+
+import numpy as np
+
 import wandb
 import yaml
 import copy
@@ -10,8 +13,12 @@ from wandb_utils import sample_wandb_hyperparams
 log_dir = os.environ.get("WANDB_DIR", "./logs")
 
 exp_to_config = {
-    # all of the 62 atari environments + hyperparameters. This will take a long time to train.
+    # all of the 62 atari environments + w/wo done mask + w/wo shaping
     "atari-full": "atari-full-sweep.yml",
+    # all of the 62 atari environments + w/wo shaping
+    "atari-shape": "atari-shape-sweep.yml",
+    # 22 shorter atari environments, from https://arxiv.org/pdf/1903.00374
+    "atari-scale-shorter": "scale-shorter.yml",
     # three of the atari environments
     "atari-mini": "atari-mini-sweep.yml",
     # pong only:
@@ -43,28 +50,34 @@ def get_sweep_config(sweepcfg, default_config, project_name):
     return cfg
 
 
-def wandb_train(local_cfg=None):
+def wandb_train(local_cfg=None, n_hparam_runs=1):
     """:param local_cfg: pass config sweep if running locally to sample without wandb"""
+    # make a consistent seed for reproducibility
     wandb_kwargs = {"project": project, "group": experiment_name, "dir": log_dir}
-    if local_cfg:
+    if local_cfg is not None:
         local_cfg["controller"] = {'type': 'local'}
         sampled_params = sample_wandb_hyperparams(local_cfg["parameters"], int_hparams=int_hparams)
         print(f"locally sampled params: {sampled_params}")
         wandb_kwargs['config'] = sampled_params
-    with wandb.init(**wandb_kwargs, sync_tensorboard=True) as r:
-        config = wandb.config.as_dict()
-        env_str = config.pop('env_id')
-        total_timesteps = config.pop('total_timesteps')
-        run(env_str, config, total_timesteps, log_freq=1000, device=device, log_dir=f'{log_dir}/{experiment_name}')
+    for i in range(n_hparam_runs):
+        seed = np.random.randint(0, np.iinfo(np.uint32).max)
+        print(f"hparam run {i+1}/{n_hparam_runs}")
+        with wandb.init(**wandb_kwargs, sync_tensorboard=True) as r:
+            r.config.update({"seed": seed})
+            config = wandb.config.as_dict()
+            env_str = config.pop('env_id')
+            total_timesteps = config.pop('total_timesteps')
+            run(env_str, config, total_timesteps, log_freq=1000, device=device, log_dir=f'{log_dir}/{experiment_name}')
 
 
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
     args.add_argument("--sweep", type=str, default=None)
-    args.add_argument("--n_runs", type=int, default=100)
+    args.add_argument("--n_runs", type=int, default=1)
+    args.add_argument("--n_hparam_runs", type=int, default=3)
     args.add_argument("--proj", type=str, default="bs-shaping")
     args.add_argument("--local-wandb", type=bool, default=True)
-    args.add_argument("--exp-name", type=str, default="atari-mini")
+    args.add_argument("--exp-name", type=str, default="atari-scale-shorter")
     args.add_argument("-d", "--device", type=str, default='cuda')
     args = args.parse_args()
     project = args.proj
@@ -72,8 +85,8 @@ if __name__ == "__main__":
     device = args.device
     # load the default config
     default_config = {'parameters': {}}
-    # with open("sweeps/atari-default.yml", "r") as f:
-    #     default_config = yaml.load(f, yaml.SafeLoader)
+    with open("sweeps/atari-default.yml", "r") as f:
+        default_config = yaml.load(f, yaml.SafeLoader)
     # load the experiment config
     with open(f"sweeps/{exp_to_config[experiment_name]}", "r") as f:
         expsweepcfg = yaml.load(f, yaml.SafeLoader)
@@ -89,7 +102,7 @@ if __name__ == "__main__":
         for i in range(args.n_runs):
             try:
                 print(f"running local sweep {i}")
-                wandb_train(local_cfg=copy.deepcopy(sweepcfg))
+                wandb_train(local_cfg=copy.deepcopy(sweepcfg), n_hparam_runs=args.n_hparam_runs)
             except Exception as e:
                 print(f"failed to run local sweep {i}")
                 print(e)

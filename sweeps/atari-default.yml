@@ -24,3 +24,5 @@ parameters:
     values: [ 0.02 ]
   gamma:
     values: [ 0.99 ]
+  total_timesteps:
+    values: [ 2000000 ]

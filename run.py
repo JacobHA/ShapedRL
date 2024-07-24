@@ -24,7 +24,21 @@ for env in atari_envs:
 atari_envs = atari_envs.union(v5_envs)
 
 
-def run(env_str, hparams, total_timesteps, log_freq, device='cuda', log_dir="./runs"):
+def seed_all(seed):
+    import torch
+    import numpy as np
+    import random
+    print(f"Setting seed to {seed}")
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+
+
+def run(env_str, hparams, total_timesteps, log_freq, device='cuda', log_dir="./runs", eval_videos=False):
+    seed = hparams.pop('seed')
+    seed_all(seed)
     env_kwargs = {}
     print(env_str)
     print(hparams)
@@ -34,11 +48,11 @@ def run(env_str, hparams, total_timesteps, log_freq, device='cuda', log_dir="./r
         det = True
 
     if env_str in atari_envs:
-        env = make_atari_env(env_str, n_envs=1, seed=42)
+        env = make_atari_env(env_str, n_envs=1, seed=seed)
         env = VecFrameStack(env, n_stack=4)
         env = VecTransposeImage(env)
         
-        eval_env = make_atari_env(env_str, n_envs=1, seed=42)
+        eval_env = make_atari_env(env_str, n_envs=1, seed=seed)
         # set the render fps to 60:
         eval_env.metadata['render_fps'] = 60
         # TODO: This is not working (above)!
@@ -50,7 +64,8 @@ def run(env_str, hparams, total_timesteps, log_freq, device='cuda', log_dir="./r
 
         eval_env = VecFrameStack(eval_env, n_stack=4)
         eval_env = VecTransposeImage(eval_env)
-        eval_env = VecVideoRecorder(eval_env, f"{log_dir}/{env_str}", record_video_trigger=lambda x: x == 0, video_length=10000)
+        if eval_videos:
+            eval_env = VecVideoRecorder(eval_env, f"{log_dir}/{env_str}", record_video_trigger=lambda x: x == 0, video_length=10000)
         policy = "CnnPolicy"
     else:
         env = gym.make(env_str, **env_kwargs)
@@ -74,7 +89,7 @@ def run(env_str, hparams, total_timesteps, log_freq, device='cuda', log_dir="./r
     #             callback=eval_callback,
     #             tb_log_name=str(model)+env_str+f'-det={det}'
     # )
-    model = ShapedDQN(policy, env, verbose=4, **hparams, device='cuda', tensorboard_log="./runs")
+    model = ShapedDQN(policy, env, verbose=4, **hparams, device=device, tensorboard_log="./runs")
     model.learn(total_timesteps, log_interval=10, callback=eval_callback, tb_log_name="DQN"+env_str+f'-det={det}')
 
 
@@ -83,8 +98,9 @@ if __name__ == "__main__":
     parser.add_argument("-s", type=bool, default=True)
     parser.add_argument("-t", type=bool, default=False,
                         help="If true, the done mask is not applied to the potential function")
+    parser.add_argument("-v", "--vid", type=bool, default=False)
     # parser.add_argument("-e", "--env", type=str, default="PongNoFrameskip-v4")  # "FrozenLake-v1" "PongNoFrameskip-v4"
-    parser.add_argument("-e", "--env", type=str, default="LunarLander-v2")  # "FrozenLake-v1" "PongNoFrameskip-v4"
+    parser.add_argument("-e", "--env", type=str, default="PongNoFrameskip-v4")  # "FrozenLake-v1" "PongNoFrameskip-v4"
     args = parser.parse_args()
     do_shape = args.s
     no_done_mask = args.t

@@ -4,7 +4,5 @@ metric:
 parameters:
   env_id:
     values: [ "PongNoFrameskip-v4" ]
-  no_done_mask:
-    values: [ "True", "False" ]
   do_shape:
     values: [ "True", "False" ]
