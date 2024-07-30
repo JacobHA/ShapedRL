@@ -36,6 +36,7 @@ corresponds to human performance.
 # pylint: disable=g-bad-import-order
 
 import math
+import re
 
 # Game: score-tuple dictionary. Each score tuple contains
 #  0: score random (float) and 1: score human (float).
@@ -109,6 +110,7 @@ ATARI_GAMES = tuple(sorted(_ATARI_DATA.keys()))
 
 def get_human_normalized_score(game: str, raw_score: float) -> float:
   """Converts game score to human-normalized score."""
+  game = re.sub('([A-Z]+)', r'_\1', game.split('NoFrameskip')[0])[1:]
   game = game.lower()
   game_scores = _ATARI_DATA.get(game, (math.nan, math.nan))
   random, human = game_scores[_RANDOM_COL], game_scores[_HUMAN_COL]
