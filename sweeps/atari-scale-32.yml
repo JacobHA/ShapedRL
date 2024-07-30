@@ -1,0 +1,16 @@
+
+metric:
+  goal: maximize
+  name: eval/auc
+parameters:
+  env_id:
+    values: [ "BoxingNoFrameskip-v4", "TennisNoFrameskip-v4", "PitfallNoFrameskip-v4", "BankHeistNoFrameskip-v4", "BowlingNoFrameskip-v4", "AmidarNoFrameskip-v4", "BreakoutNoFrameskip-v4", "RobotankNoFrameskip-v4", "EnduroNoFrameskip-v4", "DoubleDunkNoFrameskip-v4",
+              "AlienNoFrameskip-v4", "FishingDerbyNoFrameskip-v4", "FreewayNoFrameskip-v4", "FrostbiteNoFrameskip-v4", "GopherNoFrameskip-v4", "GravitarNoFrameskip-v4", "HeroNoFrameskip-v4", "IceHockeyNoFrameskip-v4", "JamesbondNoFrameskip-v4", "KangarooNoFrameskip-v4", "KrullNoFrameskip-v4", "KungFuMasterNoFrameskip-v4", "MsPacmanNoFrameskip-v4", "NameThisGameNoFrameskip-v4", "PongNoFrameskip-v4", "PrivateEyeNoFrameskip-v4", "QbertNoFrameskip-v4", "RiverraidNoFrameskip-v4", "RoadRunnerNoFrameskip-v4", "SeaquestNoFrameskip-v4", "UpNDownNoFrameskip-v4", "YarsRevengeNoFrameskip-v4" ]
+  no_done_mask:
+    values: [ "True" ]
+  do_shape:
+    values: [ "True" ]
+  shape_scale:
+    values: [0.0, 1.0, 2.0, ]
+  total_timesteps:
+    values: [ 10000000 ]

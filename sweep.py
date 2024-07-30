@@ -18,7 +18,11 @@ exp_to_config = {
     # all of the 62 atari environments + w/wo shaping
     "atari-shape": "atari-shape-sweep.yml",
     # 22 shorter atari environments, from https://arxiv.org/pdf/1903.00374
-    "atari-scale-shorter": "scale-shorter.yml",
+    "atari-scale-shorter": "atari-scale-shorter.yml",
+    # 22 + 10 shorter atari envs
+    "atari-scale-32": "atari-scale-32.yml",
+    # 10 new other atari envs
+    "atari-scale-10": "atari-scale-10.yml",
     # three of the atari environments
     "atari-mini": "atari-mini-sweep.yml",
     # pong only:
@@ -67,6 +71,7 @@ def wandb_train(local_cfg=None, n_hparam_runs=1):
             config = wandb.config.as_dict()
             env_str = config.pop('env_id')
             total_timesteps = config.pop('total_timesteps')
+            print(f"training {total_timesteps} steps on {env_str}")
             run(env_str, config, total_timesteps, log_freq=1000, device=device, log_dir=f'{log_dir}/{experiment_name}')
 
 
@@ -75,9 +80,9 @@ if __name__ == "__main__":
     args.add_argument("--sweep", type=str, default=None)
     args.add_argument("--n_runs", type=int, default=1)
     args.add_argument("--n_hparam_runs", type=int, default=3)
-    args.add_argument("--proj", type=str, default="bs-shaping")
+    args.add_argument("--proj", type=str, default="shaping")
     args.add_argument("--local-wandb", type=bool, default=True)
-    args.add_argument("--exp-name", type=str, default="atari-scale-shorter")
+    args.add_argument("--exp-name", type=str, default="atari-scale-32")
     args.add_argument("-d", "--device", type=str, default='cuda')
     args = args.parse_args()
     project = args.proj

@@ -1,0 +1,15 @@
+
+metric:
+  goal: maximize
+  name: eval/auc
+parameters:
+  env_id:
+    values: [ "BoxingNoFrameskip-v4", "TennisNoFrameskip-v4", "PitfallNoFrameskip-v4", "BankHeistNoFrameskip-v4", "BowlingNoFrameskip-v4", "AmidarNoFrameskip-v4", "BreakoutNoFrameskip-v4", "RobotankNoFrameskip-v4", "EnduroNoFrameskip-v4", "DoubleDunkNoFrameskip-v4",]
+  no_done_mask:
+    values: [ "True" ]
+  do_shape:
+    values: [ "True" ]
+  shape_scale:
+    values: [0.0, 1.0, 2.0, ]
+  total_timesteps:
+    values: [ 10000000 ]
