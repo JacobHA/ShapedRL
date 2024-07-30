@@ -19,7 +19,7 @@ exp_to_config = {
     # Pong only, sweeping scale parameter:
     "pong-eta": "pong-scale-sweep.yml",
     # All envs, eta sweep:
-    "eta-sweep": "scale-sweep.yml",
+    "eta-sweep": "scale-shorter.yml",
     # classic control:
     "classic": "classic-sweep.yml",
     "classic-sql": "classic-sql.yml"
@@ -68,8 +68,8 @@ if __name__ == "__main__":
     device = args.device
     # load the default config
     default_config = {'parameters': {}}
-    # with open("sweeps/atari-default.yml", "r") as f:
-    #     default_config = yaml.load(f, yaml.SafeLoader)
+    with open("sweeps/atari-default.yml", "r") as f:
+        default_config = yaml.load(f, yaml.SafeLoader)
     # load the experiment config
     with open(f"sweeps/{exp_to_config[experiment_name]}", "r") as f:
         expsweepcfg = yaml.load(f, yaml.SafeLoader)
