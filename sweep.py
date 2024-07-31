@@ -20,6 +20,7 @@ exp_to_config = {
     "pong-eta": "pong-scale-sweep.yml",
     # All envs, eta sweep:
     "eta-sweep": "scale-shorter.yml",
+    "eta-remain": "scale-remaining.yml",
     # classic control:
     "classic": "classic-sweep.yml",
     "classic-sql": "classic-sql.yml"
