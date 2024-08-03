@@ -16,9 +16,11 @@ class ShapedDQN(DQN):
 
     def __init__(self, *args, do_shape:bool=False, no_done_mask:bool=False,
                  shape_scale:float=1.0,
+                 grad_reward:bool=False,
                  use_oracle=False, oracle_path:str='', **kwargs):
         self.do_shape = do_shape
         self.shape_scale = shape_scale
+        self.grad_reward = grad_reward
         self.no_done_mask = no_done_mask
         self.use_oracle = use_oracle
         self.oracle_path = oracle_path
@@ -42,6 +44,30 @@ class ShapedDQN(DQN):
             replay_data = self.replay_buffer.sample(
                 batch_size, env=self._vec_normalize_env)
 
+            rewards = replay_data.rewards
+
+            if self.do_shape:
+                if self.grad_reward:
+                    # Build the shaping potential function, using online net:
+                    curr_q_values = self.policy.q_net(replay_data.observations)
+                    next_q_values = self.policy.q_net(replay_data.next_observations)
+                    curr_v_max, _ = curr_q_values.max(dim=1, keepdim=True)
+                    next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
+
+                else:
+                    with th.no_grad():
+                        # Build the shaping potential function, using online net:
+                        curr_q_values = self.policy.q_net(replay_data.observations)
+                        next_q_values = self.policy.q_net(replay_data.next_observations)
+                        curr_v_max, _ = curr_q_values.max(dim=1, keepdim=True)
+                        next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
+
+                dones_mask = 1 if self.no_done_mask else 1 - replay_data.dones
+
+                # TODO: Experiment with weight schedule?
+                eta = self.shape_scale
+                rewards += eta * (dones_mask * self.gamma * next_v_max - curr_v_max)
+        
             with th.no_grad():
                 # Compute the next Q-values using the target network
                 next_q_value = self.q_net_target(replay_data.next_observations)
@@ -49,23 +75,6 @@ class ShapedDQN(DQN):
                 max_q_value, _ = next_q_value.max(dim=1, keepdim=True)
                 # Avoid potential broadcast issue
                 max_q_value = max_q_value.reshape(-1, 1)
-
-                rewards = replay_data.rewards
-
-                if self.do_shape:
-                    # Build the shaping potential function, using online net:
-                    curr_q_values = self.policy.q_net(replay_data.observations)
-                    next_q_values = self.policy.q_net(replay_data.next_observations)
-                    curr_v_max, _ = curr_q_values.max(dim=1, keepdim=True)
-                    next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
-                    dones_mask = 1 if self.no_done_mask else 1 - replay_data.dones
-
-
-                    # TODO: Experiment with weight schedule?
-                    # weight = -0.03#1 #- self.exploration_rate
-                    eta = self.shape_scale #* self.exploration_rate
-                    # eta = self.shape_scale
-                    rewards += eta * (dones_mask * self.gamma * next_v_max - curr_v_max)
 
                 target_q_values = rewards + (1 - replay_data.dones) * self.gamma * max_q_value
 

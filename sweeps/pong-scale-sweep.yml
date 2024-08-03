@@ -8,7 +8,11 @@ parameters:
     values: [ "True" ]
   do_shape:
     values: [ "True" ]
+  grad_reward:
+    values: [ "True" , "False" ]
   shape_scale:
-    values: [1.5]
+    values: [1.0]
   exploration_fraction:
     values: [ 0.5 ]
+  total_timesteps:
+    values: [ 2000000 ]
