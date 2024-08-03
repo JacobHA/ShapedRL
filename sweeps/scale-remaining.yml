@@ -4,7 +4,7 @@ metric:
   name: eval/auc
 parameters:
   env_id:
-    values: [ "AirRaidNoFrameskip-v4", "AmidarNoFrameskip-v4", "AssaultNoFrameskip-v4", "AsterixNoFrameskip-v4", "AsteroidsNoFrameskip-v4", "BankHeistNoFrameskip-v4", "BattleZoneNoFrameskip-v4", "BeamRiderNoFrameskip-v4", "BerzerkNoFrameskip-v4", "BoxingNoFrameskip-v4", "BreakoutNoFrameskip-v4", "ChopperCommandNoFrameskip-v4", "CrazyClimberNoFrameskip-v4", "DemonAttackNoFrameskip-v4", "EnduroNoFrameskip-v4", "SpaceInvadersNoFrameskip-v4", "StarGunnerNoFrameskip-v4", "SurroundNoFrameskip-v4", "TimePilotNoFrameskip-v4", "VideoPinballNoFrameskip-v4", "WizardOfWorNoFrameskip-v4", "ZaxxonNoFrameskip-v4" ]
+    values: [ "AirRaidNoFrameskip-v4", "AmidarNoFrameskip-v4", "AssaultNoFrameskip-v4", "AsterixNoFrameskip-v4", "AsteroidsNoFrameskip-v4", "BankHeistNoFrameskip-v4", "BattleZoneNoFrameskip-v4", "BeamRiderNoFrameskip-v4", "BerzerkNoFrameskip-v4", "BoxingNoFrameskip-v4", "BreakoutNoFrameskip-v4", "ChopperCommandNoFrameskip-v4", "CrazyClimberNoFrameskip-v4", "DemonAttackNoFrameskip-v4", "EnduroNoFrameskip-v4", "SpaceInvadersNoFrameskip-v4", "StarGunnerNoFrameskip-v4", "TimePilotNoFrameskip-v4", "VideoPinballNoFrameskip-v4", "WizardOfWorNoFrameskip-v4", "ZaxxonNoFrameskip-v4" ]
   no_done_mask:
     values: [ "True" ]
   do_shape:

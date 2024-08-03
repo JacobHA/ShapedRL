@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -c 4  # Number of Cores per Task
-#SBATCH --mem=8192  # Requested Memory
-#SBATCH -p cpu  # Partition
-##SBATCH -G 1  # Number of GPUs
-#SBATCH -t 23:00:00  # Job time limit
+#SBATCH --mem=8GB  # Requested Memory
+#SBATCH -p gpu-long  # Partition
+#SBATCH -G 1  # Number of GPUs
+#SBATCH -t 10-23:00:00  # Job time limit
 #SBATCH -o outfiles/%j.out  # %j = job ID
 
 #SBATCH --array=1-15
@@ -21,4 +21,8 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib
 # python atari_run.py
 # python sweep.py &
 # python sweep.py &
-python sweep.py --exp-name 'pong-target'
+python sweep.py --exp-name 'eta-remain' --proj atari10m &
+python sweep.py --exp-name 'eta-sweep' --proj atari10m
+sleep 10
+python sweep.py --exp-name 'eta-remain' --proj atari10m &
+python sweep.py --exp-name 'eta-sweep' --proj atari10m
