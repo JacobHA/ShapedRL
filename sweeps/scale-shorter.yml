@@ -10,4 +10,5 @@ parameters:
   do_shape:
     values: [ "True" ]
   shape_scale:
-    values: [0.0, 0.5, 1.0, 2.0]
+    # values: [0.0, 0.5, 1.0, 2.0]
+    values: [3.0, 5.0, 10.0]
