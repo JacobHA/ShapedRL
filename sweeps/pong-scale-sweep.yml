@@ -3,7 +3,8 @@ metric:
   name: eval/auc
 parameters:
   env_id:
-    values: [ "PongNoFrameskip-v4" ]
+    # values: [ "PongNoFrameskip-v4" ]
+    values: ["StarGunnerNoFrameskip-v4"]
   no_done_mask:
     values: [ "True" ]
   do_shape:
@@ -11,7 +12,7 @@ parameters:
   grad_reward:
     values: [ "True" , "False" ]
   shape_scale:
-    values: [1.0]
+    values: [ 2.0 ]
   exploration_fraction:
     values: [ 0.5 ]
   total_timesteps:

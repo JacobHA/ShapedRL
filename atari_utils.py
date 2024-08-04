@@ -100,6 +100,7 @@ _ATARI_DATA = {
     'wizard_of_wor': (563.5, 4756.5),
     'yars_revenge': (3092.9, 54576.9),
     'zaxxon': (32.5, 9173.3),
+    'air_raid': (579.25, 7765.25), #https://arxiv.org/pdf/1908.04683
 }
 
 _RANDOM_COL = 0
@@ -107,10 +108,13 @@ _HUMAN_COL = 1
 
 ATARI_GAMES = tuple(sorted(_ATARI_DATA.keys()))
 
+def camel_to_snake(name):
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
 def get_human_normalized_score(game: str, raw_score: float) -> float:
   """Converts game score to human-normalized score."""
-  game = re.sub('([A-Z]+)', r'_\1', game.split('NoFrameskip')[0])[1:]
+  game = camel_to_snake(game.split('NoFrameskip')[0])
   game = game.lower()
   game_scores = _ATARI_DATA.get(game, (math.nan, math.nan))
   random, human = game_scores[_RANDOM_COL], game_scores[_HUMAN_COL]
