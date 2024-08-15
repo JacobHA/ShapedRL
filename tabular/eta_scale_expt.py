@@ -8,13 +8,14 @@ import matplotlib.pyplot as plt
 from gymnasium.wrappers import TimeLimit
 from utils import ModifiedFrozenLake
 
-map_name = 'hallway2'
-env = ModifiedFrozenLake(map_name=map_name, slippery=0, min_reward=0, max_reward=1, step_penalization=0)
-env = TimeLimit(env, max_episode_steps=50)
+map_name = '10x10empty'
+GAMMA = 0.98
+env = ModifiedFrozenLake(map_name=map_name, slippery=0)
+env = TimeLimit(env, max_episode_steps=500)
 
-etas = np.linspace(-0.025, 0.05, 12)
+etas = np.linspace(-0.95, 0.5, 24)
 # etas = np.linspace(-0.1, 0.05, 6)
-
+etas = [0, 1]
 # add the zero eta if not there:
 if 0 not in etas:
     etas = np.concatenate(([0], etas))
@@ -26,14 +27,14 @@ def experiment(eta, num_trials = 5):
     trial_meanQ = np.zeros(num_trials)
     for trial in range(num_trials):
         # Now create the Q-learning agent:
-        agent = DynamicQLearning(env, gamma=0.9, learning_rate=1.0, eta=eta,
+        agent = DynamicQLearning(env, gamma=GAMMA, learning_rate=0.9, eta=eta,
                         save_data=False,
                         prefix=f'a={eta}')
-        agent.train(100000)
+        agent.train(10_000)
         trial_meanQ[trial] = np.mean(np.abs(agent.V_from_Q(agent.Q)))
         trial_rwds[trial] = sum(agent.reward_over_time) / len(agent.reward_over_time)
 
-    return np.mean(trial_meanQ), np.std(trial_meanQ), np.mean(trial_rwds)  / np.sqrt(num_trials), np.std(trial_rwds) / np.sqrt(num_trials)
+    return np.mean(trial_meanQ), np.std(trial_meanQ), np.mean(trial_rwds), np.std(trial_rwds)
 
 from multiprocessing import Pool
 with Pool(16) as p:
@@ -73,5 +74,5 @@ plt.fill_between(etas, [auc/norm - std/norm for auc, std in zip(q_means, q_stds)
 # plt.plot(etas, (1 + 0.97*etas)**(-1), 'r--')
 plt.plot(etas, (1 + etas)**(-1), 'g--')
 
-# plt.ylim(0, 100)
+plt.ylim(0, 100)
 plt.show()

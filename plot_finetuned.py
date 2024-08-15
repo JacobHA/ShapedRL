@@ -27,10 +27,6 @@ def plot_advantage(project, comparison_variable, value_variable="eval/mean_rewar
     compared_envs = {}
     for env_id, env_stat in envs.items():
         values = env_stat.keys()
-        # if len(values) != 4:#len(all_comparison_values):
-        # if sorted(values) != sorted([f'{comparison_variable}={x}' for x in [0, 0.5, 1, 2]]):
-        # if len(values) = 5:
-        # continue
         cont = False
         for key in env_stat:
             n_runs = env_stat[key]['number_of_runs']
@@ -109,25 +105,65 @@ def plot_advantage(project, comparison_variable, value_variable="eval/mean_rewar
         xtick_labels.append(env_str)
         xtick_positions.append(idx)
 
-    plt.bar([i for i in range(len(env_scores))], env_scores, color=[value_to_color[x] for x in compared_envs[env_str].keys()])
+    plt.bar([i for i in range(len(env_scores))], env_scores, color='blue')#[value_to_color[x] for x in compared_envs[env_str].keys()])
     # Set the xticks and their labels
     plt.xticks(xtick_positions, xtick_labels)
 
-    plt.title(f"Percentage advantage of finetuned {comparison_variable} compared to baseline")
-    plt.xlabel("Environment")
+    plt.title(fr"Relative advantage (%) of finetuned $\eta$ compared to baseline")
+    # draw a threshold line at 0
+    plt.axhline(0, color='black', linewidth=1.5)
+    # plt.xlabel("Environment")
     plt.yscale("symlog")
-    # plt.ylim(-150,250)
+    plt.ylim(-400,400)
     plt.ylabel("Percentage advantage")
     plt.xticks(rotation=90)
     # Get unique legend labels only:
     handles, labels = plt.gca().get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
-    plt.legend(by_label.values(), by_label.keys(), loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4)
+    # plt.legend(by_label.values(), by_label.keys(), loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4)
     # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4)
     plt.tight_layout()
     plt.savefig(f"finetuned_advantage_{project}_{comparison_variable}.png")
 
     plt.figure(figsize=(10, 6))
+
+    # Plot the finetuned reward curve, taking the median human normalized score:
+    ft_rwd_curve = {}
+    for env_str, env_stat in compared_envs.items():
+        # for comparison_variable_value in all_comparison_values:
+        #     if comparison_variable_value == baseline_label:
+        #         continue
+        #     try:
+        #         percentage_advantage = env_stat[comparison_variable_value]['percentage_advantage']
+        #     except KeyError:
+        #         continue
+        #     if percentage_advantage < 0:
+        #         continue
+            scores = [x['eval/mean_reward'] for k, x in env_stat.items()]# if k != baseline_label]
+            # Get the max array based on the sum of the various entries:
+            scores = max(scores, key=lambda x: np.sum(x))
+
+
+            # # convert to human normalized score
+            # scores = get_human_normalized_score(env_str, scores,
+            # if nan, skip
+            if np.isnan(scores).any():
+                continue
+            ft_rwd_curve[env_str] = scores
+
+    # ft_rwd_curve = np.array(ft_rwd_curve)
+    # median_rwd_curve = np.median(ft_rwd_curve, axis=0)
+    # take median over the dicts items:
+    median_rwd_curve = np.median(np.array(list(ft_rwd_curve.values())), axis=0)
+    # plot:
+    plt.plot(x_axis, median_rwd_curve, label="Finetuned reward")
+    # plt.plot(x_axis, get_human_normalized_score(x_axis), label="Human normalized score")
+    plt.title(f"Median finetuned reward curve for {project}")
+    plt.xlabel("Number of frames")
+    plt.ylabel("Mean reward")
+    # plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"finetuned_reward_curve_{project}_{comparison_variable}.png")
 
 
 def download_data(project, value_variable="eval/mean_reward", comparison_variable="shape_scale", cache=True):

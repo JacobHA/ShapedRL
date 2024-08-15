@@ -138,6 +138,42 @@ class OnlineSoftQNets(OnlineNets):
                 action = a.cpu().item()
         return action
 
+
+class DuelingDQN(nn.Module):
+    def __init__(self, input_dim, hidden_dim, n_actions):
+        super(DuelingDQN, self).__init__()
+        self.shared_layers = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU()
+        )
+        self.value_stream = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1)  # Scalar output
+        )
+        self.advantage_stream = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, n_actions)  # One output per action
+        )
+
+    def forward(self, x):
+        # shared_output = self.shared_layers(x)
+        
+        value = self.value_stream(x)
+        advantage = self.advantage_stream(x)
+        
+        # Combine value and advantage streams
+        q_values = value + (advantage - advantage.mean(dim=1, keepdim=True))
+        
+        return q_values
+
     
 class SoftQNet(torch.nn.Module):
     def __init__(self, env, device='cuda', hidden_dim=256, activation=nn.ReLU):
@@ -154,15 +190,8 @@ class SoftQNet(torch.nn.Module):
         except:
             nS = self.nS[0]
         input_dim = nS
-        
    
-        model = nn.Sequential(
-            nn.Linear(input_dim, hidden_dim),
-            activation(),
-            nn.Linear(hidden_dim, hidden_dim),
-            activation(),
-            nn.Linear(hidden_dim, self.nA),    
-        )
+        model = DuelingDQN(input_dim, hidden_dim, self.nA)
 
         model.to(self.device)
         self.model = model
