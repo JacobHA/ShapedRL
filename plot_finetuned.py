@@ -7,6 +7,8 @@ import numpy as np
 import tqdm
 import pickle
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 import seaborn as sns
 from atari_utils import get_human_normalized_score
 
@@ -55,7 +57,6 @@ def plot_advantage(project, comparison_variable, value_variable="eval/mean_rewar
                 continue
 
             adv = rew_targ / rew_base
-            # adv = get_human_normalized_score(env_id, rew_targ, rew_base)
             if rew_base < 0 and rew_targ < 0:
                 adv = 1 / adv
             env_stat[comparison_variable_value]['percentage_advantage'] = adv * 100 - 100
@@ -106,7 +107,10 @@ def plot_advantage(project, comparison_variable, value_variable="eval/mean_rewar
         xtick_labels.append(env_str)
         xtick_positions.append(idx)
 
-    plt.bar([i for i in range(len(env_scores))], env_scores, color='blue')#[value_to_color[x] for x in compared_envs[env_str].keys()])
+    cmap = cm.get_cmap('viridis')
+    norm = mcolors.Normalize(vmin=min(env_scores), vmax=max(env_scores))
+    colors = [cmap(norm(x)) for x in env_scores]
+    plt.bar([i for i in range(len(env_scores))], env_scores, color=colors)#[value_to_color[x] for x in compared_envs[env_str].keys()])
     # Set the xticks and their labels
     plt.xticks(xtick_positions, xtick_labels)
 
@@ -143,10 +147,10 @@ def plot_advantage(project, comparison_variable, value_variable="eval/mean_rewar
             scores = [x['eval/mean_reward'] for k, x in env_stat.items()]# if k != baseline_label]
             # Get the max array based on the sum of the various entries:
             scores = max(scores, key=lambda x: np.sum(x))
-            
+
 
             # # convert to human normalized score
-            # scores = get_human_normalized_score(env_str, scores, 
+            # scores = get_human_normalized_score(env_str, scores,
             # if nan, skip
             if np.isnan(scores).any():
                 continue
