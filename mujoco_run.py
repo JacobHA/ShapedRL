@@ -3,9 +3,15 @@ from algos.ShapedSAC import ShapedSAC
 from stable_baselines3.common.callbacks import EvalCallback
 from stable_baselines3.common.monitor import Monitor
 import wandb
+import argparse
 
-env_str = 'HalfCheetah-v4'
-env_str = 'Humanoid-v4'
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--env', type=str, default='Humanoid-v4')
+parser.add_argument('--entity', type=str, default=None)
+args = parser.parse_args()
+entity = args.entity
+env_str = args.env
 
 env = gym.make(env_str)
 
@@ -18,7 +24,7 @@ shaping_mode = 'none'
 use_dones = False
 # sweep_id = '5ahwaszt'
 
-wandb.init(project='Shaping', entity='jacobhadamczyk', sync_tensorboard=True)
+wandb.init(project='Shaping', entity=entity, sync_tensorboard=True)
 wandb.log({'env_id': env_str, 'shaping_mode': shaping_mode, 'use_dones': use_dones})
 
 model = ShapedSAC("MlpPolicy", env, shaping_mode=shaping_mode, 

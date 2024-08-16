@@ -22,7 +22,6 @@
 # Use command "sinfo" to get the list of partitions
 ##SBATCH --partition=AMD6276
 #SBATCH --partition=DGXA100
-# https://www.umb.edu/rc/hpc/chimera/chimera_scheduler
 
 #When submitting to the GPU node, these following three lines are needed:
 #SBATCH --gres=gpu:1
@@ -32,9 +31,10 @@
 ##SBATCH --array=1-10
 
 # Put your job commands here, including loading any needed
-# modules or diagnostic echos. Needed for GPU partitions:
-export USER=jacob.adamczyk001
-export HOME=/home/jacob.adamczyk001
+# modules or diagnostic echos. Needed for GPU partitions:}
+
+export USER=<your_username>
+export HOME=<home>
 source /etc/profile
 
 echo "starting task $SLURM_ARRAY_TASK_ID"

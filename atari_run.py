@@ -50,7 +50,6 @@ eval_callback = EvalCallback(eval_env, n_eval_episodes=5,
                 deterministic=True)
 
 
-# wandb.init(project='bs-rs', entity='jacobhadamczyk', sync_tensorboard=True)
 # wandb.log({'env_id': env_str, 'shaping_mode': shaping_mode, 'use_dones': use_dones})
 
 model = ShapedDQN("CnnPolicy", env, do_shape=True, no_done_mask=True,

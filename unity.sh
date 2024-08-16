@@ -13,7 +13,7 @@
 # Load the conda environment:
 module load miniconda/22.11.1-1
 # eval "$(conda shell.bash hook)"
-conda activate /home/jacob_adamczyk001_umb_edu/.conda/envs/rlenv
+conda activate <conda env path>
 export CPATH=$CPATH:$CONDA_PREFIX/include
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib
 

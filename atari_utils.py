@@ -38,6 +38,7 @@ corresponds to human performance.
 import math
 import re
 
+# from https://github.com/google-deepmind/dqn_zoo/blob/master/dqn_zoo/atari_data.py
 # Game: score-tuple dictionary. Each score tuple contains
 #  0: score random (float) and 1: score human (float).
 _ATARI_DATA = {

@@ -22,7 +22,6 @@
 # Use command "sinfo" to get the list of partitions
 ##SBATCH --partition=AMD6276
 #SBATCH --partition=DGXA100
-# https://www.umb.edu/rc/hpc/chimera/chimera_scheduler
 
 #When submitting to the GPU node, these following three lines are needed:
 #SBATCH --gres=gpu:1
