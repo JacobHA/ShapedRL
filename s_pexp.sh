@@ -40,10 +40,6 @@ echo "starting task $SLURM_ARRAY_TASK_ID"
 echo "using $SLURM_CPUS_ON_NODE CPUs"
 echo `date`
 
-N = ${1:-1}
-for task in {1..$N}; do {
-
-} done
 #!/bin/bash
 echo "starting $EXPN tasks"
 for (( i=1;i<=$1;i++ )); do {

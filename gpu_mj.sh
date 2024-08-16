@@ -32,8 +32,8 @@
 
 # Put your job commands here, including loading any needed
 # modules or diagnostic echos. Needed for GPU partitions:
-export USER=jacob.adamczyk001
-export HOME=/home/jacob.adamczyk001
+export USER=<your_username>
+export HOME=<home>
 source /etc/profile
 
 echo "starting task $SLURM_ARRAY_TASK_ID"

@@ -12,17 +12,12 @@
 # /modules/apps/cuda/10.1.243/samples/bin/x86_64/linux/release/deviceQuery
 # Load the conda environment:
 module load miniconda/22.11.1-1
-# eval "$(conda shell.bash hook)"
+
 conda activate <conda env path>
 export CPATH=$CPATH:$CONDA_PREFIX/include
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib
 
-# python test_oracle.py
-# python atari_run.py
-# python sweep.py &
-# python sweep.py &
-# python sweep.py --exp-name 'eta-remain' --proj atari10m &
+
 python sweep.py --exp-name 'eta-remain' --proj atari10m
 sleep 10
-# python sweep.py --exp-name 'eta-remain' --proj atari10m &
 python sweep.py --exp-name 'eta-sweep' --proj atari10m
