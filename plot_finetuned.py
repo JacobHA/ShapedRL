@@ -7,6 +7,8 @@ import numpy as np
 import tqdm
 import pickle
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 import seaborn as sns
 from atari_utils import get_human_normalized_score
 
@@ -105,7 +107,10 @@ def plot_advantage(project, comparison_variable, value_variable="eval/mean_rewar
         xtick_labels.append(env_str)
         xtick_positions.append(idx)
 
-    plt.bar([i for i in range(len(env_scores))], env_scores, color='blue')#[value_to_color[x] for x in compared_envs[env_str].keys()])
+    cmap = cm.get_cmap('viridis')
+    norm = mcolors.Normalize(vmin=min(env_scores), vmax=max(env_scores))
+    colors = [cmap(norm(x)) for x in env_scores]
+    plt.bar([i for i in range(len(env_scores))], env_scores, color=colors)#[value_to_color[x] for x in compared_envs[env_str].keys()])
     # Set the xticks and their labels
     plt.xticks(xtick_positions, xtick_labels)
 
