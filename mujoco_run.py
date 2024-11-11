@@ -19,13 +19,15 @@ hparams = {
 shaping_mode = True
 use_dones = False
 # sweep_id = '5ahwaszt'
+# wandb.tensorboard.patch(root_logdir='./runs')
 
-wandb.init(project='Shaping', entity='jacobhadamczyk', sync_tensorboard=True)
-wandb.log({'env_id': env_str, 'shaping_mode': shaping_mode, 'use_dones': use_dones})
-
-for eta in [0, 1.0, 2.0, 3.0, -0.5]:
+for eta in [0, 4, 5, 7, 2.5]:
     for _ in range(3):
-        model = ShapedTD3("MlpPolicy", env, shaping_mode=shaping_mode, shape_scale=1.0,
+        wandb.init(project='MJ-Shaping', entity='jacobhadamczyk', sync_tensorboard=True)
+        wandb.log({'env_id': env_str, 'shaping_mode': shaping_mode, 'use_dones': use_dones})
+
+        wandb.log({'shape_scale': eta})
+        model = ShapedTD3("MlpPolicy", env, shaping_mode=shaping_mode, shape_scale=eta,
                         verbose=4, tensorboard_log="./runs", 
                         **hparams, device='cuda')
 
