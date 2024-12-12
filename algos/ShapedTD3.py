@@ -1,3 +1,5 @@
+import argparse
+
 from stable_baselines3.td3 import TD3
 from stable_baselines3.common.utils import polyak_update
 import torch as th
@@ -6,11 +8,10 @@ import numpy as np
 
 
 class ShapedTD3(TD3):
-    def __init__(self, *args, shaping_mode: bool = False, shape_scale=1.0, **kwargs):
+    def __init__(self, *args, do_shape: bool = False, shape_scale=1.0, **kwargs):
         super(ShapedTD3, self).__init__(*args, **kwargs)
-        self.do_shape = shaping_mode
+        self.do_shape = do_shape
         self.eta = shape_scale
-    
 
     def train(self, gradient_steps: int, batch_size: int = 100) -> None:
         # Switch to train mode (this affects batch norm / dropout)
@@ -105,16 +106,29 @@ class ShapedTD3(TD3):
 
 if __name__ == '__main__':
     import gymnasium as gym
-    env_id = 'MountainCarContinuous-v0'
+    from stable_baselines3.common.callbacks import EvalCallback
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--env', type=str, default='Pendulum-v1')
+    # parser.add_argument('--env', type=str, default='Humanoid-v4')
+    parser.add_argument('--do_shape', action='store_true')
+    parser.add_argument('--shape_scale', type=float, default=1.0)
+    args = parser.parse_args()
+    shape = args.do_shape
+    eta = args.shape_scale
+    # env_id = 'MountainCarContinuous-v0'
+    env_id = args.env
+    # print the used config
+    print([f"{key}: {value}" for key, value in vars(args).items()])
     env = gym.make(env_id)
 
-    from stable_baselines3.common.callbacks import EvalCallback
     eval_callback = EvalCallback(env, n_eval_episodes=3,
                 log_path=f'./runs/',
                 eval_freq=500,
                 deterministic=True)
-    shape = False
-    eta = 1.0
 
-    agent = ShapedTD3('MlpPolicy', env, do_shape=True, eta=2.0, verbose=4, tensorboard_log = 'logs')
+    # if env_id == "Pendulum-v1":
+    #     policy_kwargs = dict(net_arch=[32, 32])
+    # else:
+    policy_kwargs = None  # use the defaults
+    agent = ShapedTD3('MlpPolicy', env, do_shape=shape, shape_scale=eta, verbose=4, tensorboard_log = 'logs', policy_kwargs=policy_kwargs)
     agent.learn(2e5, callback=eval_callback, tb_log_name=env_id + (1-shape)*'baseline' + shape*('shape_eta=' + str(eta)))

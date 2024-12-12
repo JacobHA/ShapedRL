@@ -1,0 +1,8 @@
+50434,root@178.74.56.43,vast_humanoid_0.0
+50433,root@178.74.56.47,vast_humanoid_0.5
+14477,root@81.166.173.11,vast_humanoid_1.0
+39582,root@193.143.121.62,vast_humanoid_2.0
+50431,root@178.74.56.49,vast_humanoid_3.0
+14478,root@81.166.173.12,vast_humanoid_5.0
+39585,root@193.143.121.66,vast_humanoid_8.0
+50430,root@178.74.56.41,vast_humanoid_10.0

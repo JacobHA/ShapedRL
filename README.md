@@ -21,3 +21,12 @@ python experiment.py
 # Future Work / Ideas:
 - For automatically adjusting the learning rate (to min. clipping) or adjust the soft-clip weight parameter:
 - Sec 5 in https://arxiv.org/pdf/1812.05905.pdf
+
+# Experiment evaluation on a remote workstation:
+Steps for reproducing the experiments using remote servers (e.g. Vastai). note: ssh keys have to be setup already, along with torch/dependencies on a remote.
+1. List the used server's username, ip, port, and name in a file with a format similar to `exmp_remotes.txt`.
+2. Send the code to remotes: `./send_to_remotes.sh exmp_remotes.txt`
+3. On the remote: 
+   1. setup the environment: `./setup.sh`
+   2. run the experiment for a specific shaping value and environment: `./start_runs.sh Pendulum-v1 td3 0.5`
+6. when done training, copy the results back to the local machine: `./get_data_from_remotes.sh exmp_remotes.txt`
