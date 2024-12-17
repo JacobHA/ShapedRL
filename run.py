@@ -22,7 +22,7 @@ env_to_steps = {
     'Swimmer-v4': 5000,
     'Ant-v4': 1_000_000,
     'Humanoid-v4': 2_000_000,
-    'Pendulum-v1': 200_000,
+    'Pendulum-v1': 60_000,
 }
 
 env_to_logfreq = {

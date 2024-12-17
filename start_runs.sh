@@ -5,70 +5,19 @@ ENVNAME=${1:-"Humanoid-v4"}
 # 30 pendulums will require 10GB GPU and ~20GB RAM for 200k buffer
 ALGO=${2:-"td3"}
 ETA=${3:-"0.5"}
+N_PARALLEL=${4:-"15"}
 # baseline
 if [ $ETA == "0.0" ];
 then
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0
+  for i in $(seq 1 $N_PARALLEL);
+  do
+    python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
+  done
 # shaped
 else
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
-  python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA
+  for i in $(seq 1 $N_PARALLEL);
+  do
+    python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
+  done
 fi
 wait
