@@ -15,9 +15,10 @@ class ShapedDQN(DQN):
     """
 
     def __init__(self, *args, do_shape:bool=False, no_done_mask:bool=False,
-                 shape_scale:float=1.0,
+                 shape_scale:float=1.0, use_target=True,
                  use_oracle=False, oracle_path:str='', **kwargs):
         self.do_shape = do_shape
+        self.use_target = use_target
         self.shape_scale = shape_scale
         self.no_done_mask = no_done_mask
         self.use_oracle = use_oracle
@@ -44,7 +45,10 @@ class ShapedDQN(DQN):
 
             with th.no_grad():
                 # Compute the next Q-values using the target network
-                next_q_value = self.q_net_target(replay_data.next_observations)
+                if self.use_target:
+                    next_q_value = self.q_net_target(replay_data.next_observations)
+                else:
+                    next_q_value = self.q_net(replay_data.next_observations)
                 # Follow greedy policy: use the one with the highest value
                 max_q_value, _ = next_q_value.max(dim=1, keepdim=True)
                 # Avoid potential broadcast issue

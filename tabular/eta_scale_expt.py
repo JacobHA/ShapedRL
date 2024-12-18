@@ -2,77 +2,60 @@
 # Plot the integrated reward as a function of eta.
 import sys
 sys.path.append('tabular/')
-from dynamic_shaping import DynamicQLearning
 import numpy as np
 import matplotlib.pyplot as plt
 from gymnasium.wrappers import TimeLimit
-from utils import ModifiedFrozenLake
+from utils import ModifiedFrozenLake, q_solver
+from experiment_utils import plot_data, run_bsrs_experiment, greedy_pi_reward
 
-map_name = '10x10empty'
-GAMMA = 0.98
-env = ModifiedFrozenLake(map_name=map_name, slippery=0)
-env = TimeLimit(env, max_episode_steps=500)
+map_name = '4x4empty'
+map_name = '8x8empty'
+GAMMA = 0.99
 
-etas = np.linspace(-0.95, 0.5, 24)
-# etas = np.linspace(-0.1, 0.05, 6)
-etas = [0, 1]
+# First solve the MDP:
+env = ModifiedFrozenLake(map_name=map_name, slippery=1, min_reward=0, max_reward=1, step_penalization=0,
+                         never_done=False, cyclic_mode=False)
+env = TimeLimit(env, max_episode_steps=5000)
+Q,V,pi = q_solver(env, gamma=GAMMA, steps=1000000)
+
+optimal_reward = greedy_pi_reward(env, pi, num_episodes=10)
+
+etas = np.linspace((1-GAMMA)/(GAMMA+1), (-GAMMA)/(1+GAMMA), 24)
+# etas = np.linspace(-0.05, 0.5, 6)
+etas = [0, 0.5, 1, 2, 3, 4, 5, 8, 10]
 # add the zero eta if not there:
 if 0 not in etas:
     etas = np.concatenate(([0], etas))
 # sort the etas:
 etas = np.sort(etas)
-
-def experiment(eta, num_trials = 5):
-    trial_rwds = np.zeros(num_trials)
-    trial_meanQ = np.zeros(num_trials)
-    for trial in range(num_trials):
-        # Now create the Q-learning agent:
-        agent = DynamicQLearning(env, gamma=GAMMA, learning_rate=0.9, eta=eta,
-                        save_data=False,
-                        prefix=f'a={eta}')
-        agent.train(10_000)
-        trial_meanQ[trial] = np.mean(np.abs(agent.V_from_Q(agent.Q)))
-        trial_rwds[trial] = sum(agent.reward_over_time) / len(agent.reward_over_time)
-
-    return np.mean(trial_meanQ), np.std(trial_meanQ), np.mean(trial_rwds), np.std(trial_rwds)
-
-from multiprocessing import Pool
-with Pool(16) as p:
-    q_means, q_stds, r_means, r_stds = zip(*p.map(experiment, etas))
-
-
+train_timesteps = 5000
+eval_freq = 250
+means, stds, rwd_curves, rwd_curve_stds = run_bsrs_experiment(env,
+                                                         etas,
+                                                         train_timesteps=train_timesteps,
+                                                         eval_freq=eval_freq,
+                                                         n_processes=30,
+                                                         gamma=GAMMA,
+                                                         learning_rate=1,
+                                                         num_trials=20
+                                                        )
 # convert to dict:
-eta_to_q = {eta: (q_mean, q_std) for eta, q_mean, q_std in zip(etas, q_means, q_stds)}
-eta_to_rwd = {eta: (r_mean, r_std) for eta, r_mean, r_std in zip(etas, r_means, r_stds)}
-
-
-plt.figure()
-plt.title('Mean reward as a function of shaping coef')
-plt.plot(etas, r_means, 'bo-')
-# Use a shaded error region:
-plt.fill_between(etas, [auc - std for auc, std in zip(r_means, r_stds)],
-                 [auc + std for auc, std in zip(r_means, r_stds)],
-                 color='b', alpha=0.2)
-# Plot the optimal reward:
-# plt.axhline(y=total_reward, color='r', linestyle='--', label='Oracle')
-# put a vertical line at the eta=0 (no shaping):
-plt.axvline(x=0, color='k', linestyle='--', label='No shaping')
-plt.axhline(y=eta_to_rwd[0][0], color='k', linestyle='--')
-plt.legend()
-plt.show()
+# eta_to_q = {eta: (q_mean, q_std) for eta, q_mean, q_std in zip(etas, q_means, q_stds)}
+# eta_to_rwd = {eta: (r_mean, r_std) for eta, r_mean, r_std in zip(etas, r_means, r_stds)}
+plot_data(etas, rwd_curves, rwd_curve_stds, means, stds, train_timesteps=train_timesteps, optimal_reward=optimal_reward, eval_freq=eval_freq)
 
 # Do the same for the mean Q values:
-plt.figure()
-plt.title('Mean Q as a function of shaping coef')
-norm = eta_to_q[0][0]
-plt.plot(etas, q_means/norm, 'bo-')
+# plt.figure()
+# plt.title('Mean Q as a function of shaping coef')
+# norm = eta_to_q[0][0]
+# plt.plot(etas, q_means/norm, 'bo-')
 # Use a shaded error region:
-plt.fill_between(etas, [auc/norm - std/norm for auc, std in zip(q_means, q_stds)],
-                 [auc/norm + std/norm for auc, std in zip(q_means, q_stds)],
-                 color='b', alpha=0.2)
+# plt.fill_between(etas, [auc/norm - std/norm for auc, std in zip(q_means, q_stds)],
+#                  [auc/norm + std/norm for auc, std in zip(q_means, q_stds)],
+#                  color='b', alpha=0.2)
 # Draw a line y=1+eta:
 # plt.plot(etas, (1 + 0.97*etas)**(-1), 'r--')
-plt.plot(etas, (1 + etas)**(-1), 'g--')
+# plt.plot(etas, (1 + etas)**(-1), 'g--')
 
 plt.ylim(0, 100)
 plt.show()

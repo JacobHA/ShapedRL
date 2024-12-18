@@ -20,6 +20,7 @@ class DynamicQLearning():
         self.gamma = gamma
         self.learning_rate = learning_rate
         
+        self.counts = np.zeros((self.nS))
 
         self.save_data = save_data
         if save_data:
@@ -38,9 +39,9 @@ class DynamicQLearning():
         
         # random initialization:
         # self.Q = np.zeros((self.nS, self.nA))
-        self.Q = np.random.rand(self.nS, self.nA) - np.ones((self.nS, self.nA))/ (1 - self.gamma)
+        # self.Q = np.random.rand(self.nS, self.nA) - np.ones((self.nS, self.nA))/ (1 - self.gamma)
         # self.Q /= (1+self.eta)
-        # self.Q = np.ones((self.nS, self.nA)) * 0.5 / (1 - self.gamma)
+        self.Q = np.zeros((self.nS, self.nA))# * 0.5 / (1 - self.gamma)
 
         self.reward_over_time = []
         self.loss_over_time = []
@@ -50,9 +51,7 @@ class DynamicQLearning():
     def V_from_Q(self, Q):
         return np.max(Q, axis=1)
     
-    def pi_from_Q(self, Q, V=None):
-        if V is None:
-            V = self.V_from_Q(Q)
+    def pi_from_Q(self, Q):
         # Greedy policy:
         pi = np.zeros((self.nS, self.nA))
         for s in range(self.nS):
@@ -68,20 +67,24 @@ class DynamicQLearning():
         
     def learn(self, state, action, reward, next_state, done):
         V = self.V_from_Q(self.Q)
-        norm = self.norm if self.norm != 0 else 1
-        norm = np.tanh(self.prev_norm / norm)
-        # phi = self.eta * V * norm #/ np.log(self.times[-1])
-        phi = self.eta * V
+        # Compute the shaping potential:
+        # if self.steps < 500:
+        #     eta = 0
+        # else:
+        #     eta = self.eta
+        phi = V * self.eta * self.counts[state] / (1 + self.counts[state])
         # print(norm)
         # shape the reward:
         reward += self.gamma * (1-done) * phi[next_state] - phi[state]
+        # next_action = np.argmax(self.Q[next_state])
+        # reward += self.eta*(self.gamma * (1-done) * self.Q[next_state, next_action] - self.Q[state, action])
 
         # Compute the TD error:
         next_V = V[next_state]
         target = reward + (1 - done) * self.gamma * next_V
         delta = target - self.Q[state, action]
-        self.norm = max(self.norm, np.abs(delta))
-        self.prev_norm = np.abs(delta)
+        # self.norm = max(self.norm, np.abs(delta))
+        # self.prev_norm = np.abs(delta)
         # Update the Q value:
         self.Q[state, action] += self.learning_rate * delta
         
@@ -91,40 +94,36 @@ class DynamicQLearning():
         self.times = np.arange(max_steps, step=eval_freq)
         
         state, _ = self.env.reset()
-        steps = 0
+        self.steps = 0
         total_reward = 0
         done = False
-        while steps < max_steps:
+        while self.steps < max_steps:
             pi = self.pi_from_Q(self.Q)
-            # linearly decay epsilon from 1 to 0.1 at half max steps
-            epsilon = max(0.05, 1 - steps / (max_steps / 2))
-            # print(epsilon)
+            # linearly decay epsilon from 1 to 0.05 at half max steps
+            epsilon = max(0.05, 1 - self.steps / (max_steps / 0.25))
             if np.random.rand() < epsilon:
                 action = self.draw_action(pi, state, greedy=False)
             else:
                 action = self.draw_action(pi, state, greedy=True)
+            self.counts[state] += 1
             next_state, reward, terminated, truncated, _ = self.env.step(action)
             done = terminated or truncated
             delta = self.learn(state, action, reward, next_state, terminated)
             state = next_state
-            steps += 1
+            self.steps += 1
             if render:
                 self.env.render()
             if done:
                 state, _ = self.env.reset()
                 done = False
                 
-            if steps % eval_freq == 0:
+            if self.steps % eval_freq == 0:
                 eval_rwd = self.evaluate(1, render=False, greedy=greedy_eval)
                 total_reward += eval_rwd
-                print(f'steps={steps}, eval_rwd={eval_rwd:.2f}')
+                print(f'steps={self.steps}, eval_rwd={eval_rwd:.2f}')
                 self.reward_over_time.append(eval_rwd)
-                # print(np.abs(self.Q).mean())
-
                 if self.save_data:
-                   
-                    self.loss_over_time.append(0)#np.max(np.abs(self.Qstar - self.Q)))
-                   
+                    self.loss_over_time.append(0)
                     # Save the data:
                     self.save()
 
@@ -147,7 +146,6 @@ class DynamicQLearning():
                 done = terminated or truncated
         return total_reward / num_episodes
     
-
                 
     def save(self):
         # Save the data with np:
