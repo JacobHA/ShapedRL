@@ -107,9 +107,11 @@ def plot_advantage(project, comparison_variable, value_variable="eval/mean_rewar
         xtick_labels.append(env_str)
         xtick_positions.append(idx)
 
-    cmap = cm.get_cmap('viridis')
+    cmap = cm.get_cmap('jet')
     norm = mcolors.Normalize(vmin=min(env_scores), vmax=max(env_scores))
-    colors = [cmap(norm(x)) for x in env_scores]
+    # colors = [cmap(norm(x*1000)) for x in env_scores]
+    # Use bright blue for positive adv and bright red for negative adv:
+    colors = ['blue' if x > 0 else 'red' for x in env_scores]
     plt.bar([i for i in range(len(env_scores))], env_scores, color=colors)#[value_to_color[x] for x in compared_envs[env_str].keys()])
     # Set the xticks and their labels
     plt.xticks(xtick_positions, xtick_labels)
@@ -234,4 +236,4 @@ def download_data(project, value_variable="eval/mean_reward", comparison_variabl
 
 
 # Example call
-plot_advantage('atari10m', 'shape_scale', cache=True, use_cached=True, baseline_value=0)
+plot_advantage('atari10m', 'shape_scale', cache=True, use_cached=False, baseline_value=0)

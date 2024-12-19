@@ -15,13 +15,14 @@ class ShapedDQN(DQN):
     """
 
     def __init__(self, *args, do_shape:bool=False, no_done_mask:bool=False,
-                 shape_scale:float=1.0,
+                 shape_scale:float=1.0, use_target: bool = False,
                  use_oracle=False, oracle_path:str='', **kwargs):
         self.do_shape = do_shape
         self.shape_scale = shape_scale
         self.no_done_mask = no_done_mask
         self.use_oracle = use_oracle
         self.oracle_path = oracle_path
+        self.use_target = use_target
         # import the saved Q network:
         if self.use_oracle:
             self.shaping_net = th.load(self.oracle_path)
@@ -54,8 +55,12 @@ class ShapedDQN(DQN):
 
                 if self.do_shape:
                     # Build the shaping potential function, using online net:
-                    curr_q_values = self.policy.q_net(replay_data.observations)
-                    next_q_values = self.policy.q_net(replay_data.next_observations)
+                    if self.use_target:
+                        curr_q_values = self.policy.q_net_target(replay_data.observations)
+                        next_q_values = self.policy.q_net_target(replay_data.next_observations)
+                    else:
+                        curr_q_values = self.policy.q_net(replay_data.observations)
+                        next_q_values = self.policy.q_net(replay_data.next_observations)
                     curr_v_max, _ = curr_q_values.max(dim=1, keepdim=True)
                     next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
                     dones_mask = 1 if self.no_done_mask else 1 - replay_data.dones

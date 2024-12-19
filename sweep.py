@@ -23,7 +23,8 @@ exp_to_config = {
     "eta-remain": "scale-remaining.yml",
     # classic control:
     "classic": "classic-sweep.yml",
-    "classic-sql": "classic-sql.yml"
+    "classic-sql": "classic-sql.yml",
+    "use-target": "use-target.yml",
 }
 int_hparams = {'batch_size', 'buffer_size', 'gradient_steps',
                'target_update_interval', 'theta_update_interval'}
