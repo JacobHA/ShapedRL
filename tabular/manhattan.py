@@ -2,6 +2,7 @@
 # Plot the integrated reward as a function of alpha.
 import sys
 sys.path.append('tabular/')
+from experiment_utils import run_experiment, greedy_pi_reward
 from utils import ModifiedFrozenLake, q_solver
 from qlearner import QLearning
 from dynamic_shaping import DynamicQLearning
@@ -13,9 +14,9 @@ map_name = '10x10empty'
 GAMMA = 0.99
 
 # First solve the MDP:
-env = ModifiedFrozenLake(map_name=map_name, slippery=0, min_reward=0, max_reward=1, step_penalization=0,
+env = ModifiedFrozenLake(map_name=map_name, slippery=1, min_reward=0, max_reward=1, step_penalization=0,
                          never_done=False, cyclic_mode=False)
-env = TimeLimit(env, max_episode_steps=100)
+env = TimeLimit(env, max_episode_steps=5000)
 
 Q,V,pi = q_solver(env, gamma=GAMMA, steps=1000000)
 
@@ -30,27 +31,11 @@ for s in range(V.shape[0]):
     y_goal = 9
     manhattan_phi[s] = np.abs(x - x_goal) + np.abs(y - y_goal)
 
-# display the manhattan distance:
-plt.imshow(manhattan_phi.reshape((10,10)))
+optimal_reward = greedy_pi_reward(env, pi, num_episodes=10)
 
-# run the policy:
-optimal_reward = 0
-
-for ep in range(10):
-    s, _ = env.reset()
-    done = False
-    while not done:
-        a = np.argmax(pi[s])
-        s, r, term, trunc, _ = env.step(a)
-        optimal_reward += r
-        done = term or trunc
-optimal_reward /= 10
-print(f'Optimal reward: {optimal_reward}')
-
-
-alphas = np.linspace(-0.0,0.001, 10)
-alphas = np.logspace(-12, 0, 8)
-alphas = [-1.0, -0.75, -0.5, -0.1, 0]#, 0.5, 1, 1.5]
+alphas = np.linspace(-0.25,1.5, 10)
+# alphas = np.logspace(-12, 0, 8)
+alphas = [0, 0.5, 1.25]
 # add zero
 if 0 not in alphas:
     alphas = np.concatenate(([0], alphas))
@@ -61,40 +46,26 @@ alpha_to_rwd_stds = {}
 
 EVAL_FREQ = 250
 train_timesteps = 10000
-def experiment(alpha, num_trials = 15):
-    reward_curves = np.zeros((num_trials, train_timesteps // EVAL_FREQ))
-    trial_rwds = np.zeros(num_trials)
-    for trial in range(num_trials):
-        # Now create the Q-learning agent:
-        agent = QLearning(env, gamma=GAMMA, learning_rate=1, 
-                          phi=alpha * manhattan_phi.flatten(),
-                        save_data=False,
-                        prefix=f'a={alpha}')
-
-        agent.train(train_timesteps, eval_freq=EVAL_FREQ)
-        trial_rwds[trial] = sum(agent.reward_over_time) / len(agent.reward_over_time)
-        reward_curves[trial, :] = agent.reward_over_time
-    # Add to the alpha_to_rwd_curve dict:
-    return np.mean(trial_rwds, axis=0), np.std(trial_rwds,axis=0) / np.sqrt(num_trials), np.mean(reward_curves, axis=0), np.std(reward_curves, axis=0) / np.sqrt(num_trials)
-
-from multiprocessing import Pool
-with Pool(20) as p:
-    means, stds, rwd_curves, rwd_curve_stds = zip(*p.map(experiment, alphas))
-p.close()
+means, stds, rwd_curves, rwd_curve_stds = run_experiment(env,
+                                                         alphas,
+                                                         -manhattan_phi,
+                                                         train_timesteps=train_timesteps,
+                                                         eval_freq=EVAL_FREQ,
+                                                         n_processes=30,
+                                                         learning_rate=1.0
+                                                        )
 
 plt.figure()
 plt.title('Reward curves as a function of shaping coef')
 time_values = np.arange(0, train_timesteps, EVAL_FREQ)
 for alpha, curve, std in zip(alphas, rwd_curves, rwd_curve_stds):
     if alpha == 0:
-        continue
+        plt.plot(time_values, curve, label='alpha=0', color='k', linestyle='--', linewidth=3)
+        plt.fill_between(time_values, curve - std, curve + std, alpha=0.2, color='k')
     else:    
         plt.plot(time_values, curve, label=f'alpha={alpha}')
         plt.fill_between(time_values, curve - std, curve + std, alpha=0.2)
 
-# Plot the alpha=0 curve:
-plt.plot(time_values, rwd_curves[0], label='alpha=0', color='k', linestyle='--', linewidth=3)
-plt.fill_between(time_values, rwd_curves[0] - rwd_curve_stds[0], rwd_curves[0] + rwd_curve_stds[0], alpha=0.2, color='k')
 plt.axhline(y=optimal_reward, color='r', linestyle='--', label='Oracle')
 
 plt.legend()

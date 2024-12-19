@@ -154,7 +154,8 @@ def get_dynamics_and_rewards(env):
 
 
 def q_solver(env, steps=10_000, gamma=0.99, tolerance=1e-6,
-              savename=None, verbose=False, rewards=None):
+              savename=None, verbose=False, rewards=None,
+              shape_scale=0.0):
 
     # First we check if the solution is already saved somewhere, if so, we load it
     if savename is not None:
@@ -171,20 +172,33 @@ def q_solver(env, steps=10_000, gamma=0.99, tolerance=1e-6,
 
     errors_list = []
     qs = []
+    phis = []
 
-    rewards = dynamics.multiply(rewards).sum(axis=0)
+    rewards = dynamics.multiply(rewards).sum(axis=0).A
+    init_rewards = rewards.copy()
     
     Qi = np.zeros((1, env.nS * env.nA))
-    Qi = np.random.rand(1, env.nS * env.nA) #* np.abs(rewards).max() / (1-gamma) 
+    Qi = np.random.rand(1, env.nS * env.nA)
 
     for i in range(1, steps+1):
         Qi = np.array(Qi).reshape((env.nS, env.nA))
         Vi = np.max(Qi, axis=1, keepdims=True)
         Vj = dynamics.A.T.dot(Vi)
-        # Qj = np.max(Qj, axis=0, keepdims=True)
-        Qi_k = rewards.A + gamma * Vj.T
+        # Qj = np.max(Qj, axis=0, keepdims=True
+        # tile Vi over actions to match Qi shape:
+        tiled_vi = np.tile(Vi, (1, env.nA)).flatten()
+        # if i % 2:
+        #     shape_scale = 0
+        # shape_scale = np.abs(tiled_vi ) * shape_scale
+        phi = shape_scale * tiled_vi
+        # add to rewards:
+        rewards = init_rewards + gamma * shape_scale * Vj.T - phi
+
+        Qi_k = rewards + gamma * Vj.T 
+
         if verbose:
             qs.append(Qi_k.mean())
+            phis.append(phi.mean())
 
         err = np.abs(Qi_k.flatten() - Qi.flatten()).max() # L_infty norm
         # err = np.abs(Qi_k - Qi).sum() # L_1 norm
@@ -229,7 +243,7 @@ def q_solver(env, steps=10_000, gamma=0.99, tolerance=1e-6,
 
 
     if verbose:
-        return Qi, Vi, pi, qs, errors_list
+        return Qi, Vi, pi, qs, phis, errors_list
     else:
         return Qi, Vi, pi
 
@@ -742,6 +756,60 @@ MAPS = {
         "FFFFFFFFFF",
         "FFFFFFFFFF",
     ],
+    "50x50empty": [
+    "S" + "F" * 49,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 50,
+    "F" * 49 + "G",
+    "F" * 50,
+    "F" * 50
+],
     "9x9channel": [
         "FFFFFFFFF",
         "FFFFFFFFF",

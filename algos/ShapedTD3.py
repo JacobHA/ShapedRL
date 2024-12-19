@@ -6,9 +6,11 @@ import numpy as np
 
 
 class ShapedTD3(TD3):
-    def __init__(self, *args, do_shape: bool = False, **kwargs):
+    def __init__(self, *args, shaping_mode: bool = False, shape_scale=1.0, **kwargs):
         super(ShapedTD3, self).__init__(*args, **kwargs)
-        self.do_shape = do_shape
+        self.do_shape = shaping_mode
+        self.eta = shape_scale
+    
 
     def train(self, gradient_steps: int, batch_size: int = 100) -> None:
         # Switch to train mode (this affects batch norm / dropout)
@@ -51,7 +53,13 @@ class ShapedTD3(TD3):
                 next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
                 rewards = replay_data.rewards
                 if self.do_shape:
-                    rewards += (1 - replay_data.dones) * self.gamma * next_v_max - curr_v_max
+                    next_online_q_values = th.cat(self.critic(
+                        replay_data.next_observations, next_actions), dim=1)
+                    next_online_q_values, _ = th.min(next_online_q_values, dim=1, keepdim=True)
+                    next_online_v_max, _ = next_online_q_values.max(dim=1, keepdim=True)
+                    next_phi = self.eta * next_online_v_max
+                    curr_phi = self.eta * curr_v_max
+                    rewards += (1 - replay_data.dones) * self.gamma * next_phi - curr_phi
 
                 target_q_values = rewards + \
                     (1 - replay_data.dones) * self.gamma * next_q_values
@@ -93,3 +101,20 @@ class ShapedTD3(TD3):
         if len(actor_losses) > 0:
             self.logger.record("train/actor_loss", np.mean(actor_losses))
         self.logger.record("train/critic_loss", np.mean(critic_losses))
+
+
+if __name__ == '__main__':
+    import gymnasium as gym
+    env_id = 'MountainCarContinuous-v0'
+    env = gym.make(env_id)
+
+    from stable_baselines3.common.callbacks import EvalCallback
+    eval_callback = EvalCallback(env, n_eval_episodes=3,
+                log_path=f'./runs/',
+                eval_freq=500,
+                deterministic=True)
+    shape = False
+    eta = 1.0
+
+    agent = ShapedTD3('MlpPolicy', env, do_shape=True, eta=2.0, verbose=4, tensorboard_log = 'logs')
+    agent.learn(2e5, callback=eval_callback, tb_log_name=env_id + (1-shape)*'baseline' + shape*('shape_eta=' + str(eta)))

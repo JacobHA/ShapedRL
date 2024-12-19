@@ -6,10 +6,10 @@ import numpy as np
 
 
 class ShapedSAC(SAC):
-    def __init__(self, *args, do_shape: bool = False, no_done_mask: bool = False, **kwargs):
+    def __init__(self, *args, do_shape: bool = False, shape_scale: float = 1.0, **kwargs):
         super(ShapedSAC, self).__init__(*args, **kwargs)
         self.do_shape = do_shape
-        self.no_done_mask = no_done_mask
+        self.shape_scale = shape_scale
 
     def train(self, gradient_steps: int, batch_size: int = 64) -> None:
         # Switch to train mode (this affects batch norm / dropout)
@@ -35,8 +35,7 @@ class ShapedSAC(SAC):
                 self.actor.reset_noise()
 
             # Action by the current actor for the sampled state
-            actions_pi, log_prob = self.actor.action_log_prob(
-                replay_data.observations)
+            actions_pi, log_prob = self.actor.action_log_prob(replay_data.observations)
             log_prob = log_prob.reshape(-1, 1)
 
             ent_coef_loss = None
@@ -83,28 +82,15 @@ class ShapedSAC(SAC):
                 # td error + entropy term
                 rewards = replay_data.rewards
                 if self.do_shape:
-                    # Get the current ent_coef
-                    try:
-                        # If alpha is being learned, detach it
-                        alpha = th.exp(self.log_ent_coef.detach())
-                    except AttributeError:
-                        # otherwise, grab the fixed value:
-                        alpha = self.ent_coef
 
-                    # if self.shaping_mode == 'target':
-                    #     potential_model = self.critic_target
-                    # elif self.shaping_mode == 'online':
-                    #     potential_model = self.critic
-                    # else:
-                    #     raise ValueError(f"Shaping mode {self.shaping_mode} not recognized")
-                    
+                    curr_actions, curr_log_prob = self.actor.action_log_prob(replay_data.observations)
                     curr_phi = th.cat(
-                            self.critic(replay_data.observations, replay_data.actions),
+                            self.critic(replay_data.observations, curr_actions),
                             dim=1)
                     
 
                     curr_phi = th.min(curr_phi, dim=1, keepdim=True)[0] - \
-                                        ent_coef * log_prob.detach()
+                                        ent_coef * curr_log_prob.reshape(-1, 1)
 
                     next_phi = th.cat(
                             self.critic(replay_data.next_observations, next_actions),
@@ -120,11 +106,8 @@ class ShapedSAC(SAC):
                     # curr_phi = alpha * th.logsumexp(
                     #     current_q_values[0]/alpha, dim=1, keepdim=True)
 
-                    weight = 0.8
-                    # if self.use_dones:
-                        # rewards += weight * ((1 - replay_data.dones) * self.gamma * next_phi - curr_phi)
-                    # else:
-                    rewards += weight * (self.gamma * next_phi - curr_phi)
+
+                    rewards += self.shape_scale * (self.gamma * (1 - replay_data.dones) * next_phi - curr_phi)
 
 
                 target_q_values = replay_data.rewards + \
