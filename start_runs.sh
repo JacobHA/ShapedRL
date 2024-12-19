@@ -1,11 +1,11 @@
 #!/bin/bash
 
-ENVNAME=${1:-"Humanoid-v4"}
+ENVNAME=${1:-"Pendulum-v1"}
 # 30 humanoids will require 10GB GPU and 200GB RAM for 1M buffer
 # 30 pendulums will require 10GB GPU and ~20GB RAM for 200k buffer
 ALGO=${2:-"td3"}
-ETA=${3:-"0.5"}
-N_PARALLEL=${4:-"15"}
+ETA=${3:-"-0.5"}
+N_PARALLEL=${4:-"10"}
 # baseline
 if [ $ETA == "0.0" ];
 then

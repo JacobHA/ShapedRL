@@ -9,7 +9,6 @@ from tbparse import SummaryReader
 
 metrics_to_ylabel = {
     'eval/mean_reward': 'Average Evaluation Reward',
-    'rollout/ep_rew_mean': 'Average Rollout Reward',
 }
 all_metrics = [
     'rollout/ep_rew_mean', 'eval/mean_reward'
@@ -33,11 +32,9 @@ def plotter(env, folder, x_axis='step', metrics=all_metrics, exclude_algos=[],
     for subfolder in subfolders:
         if not os.path.isdir(subfolder) or subfolder.endswith('.png'):
             continue
-        base=os.path.basename(subfolder)
-        if 'baseline' in base:
-            algo_name = 'eta=0'
-        else:
-            algo_name = base.split('shape_')[1].split('_')[0]
+
+        algo_name = os.path.basename(subfolder).split('shape_')[1].split('_')[0]
+
         if algo_name in exclude_algos:
             print(f"Skipping {algo_name}, in exclude_algos.")
             continue
@@ -51,22 +48,19 @@ def plotter(env, folder, x_axis='step', metrics=all_metrics, exclude_algos=[],
         # assert len(log_files) == 1
         log_file = log_files[0]
         print("Processing", os.path.basename(subfolder))
-
         try:
             reader = SummaryReader(log_file)
             df = reader.scalars
             df = df[df['tag'].isin(metrics + [x_axis])]
             # Add a new column with the algo name:
             df['algo'] = algo_name
+   
+            # Add run number:
             df['run'] = os.path.basename(subfolder).split('_')[2]
             algo_name_float = algo_name.split('eta')[-1]
             # replace "eta with $\eta$":
-            algo_name = algo_name.replace('eta', r'$\eta$')
             algo_name_float = algo_name_float
             print(algo_name_float)
-            if algo_name_float not in ['=-0.5', '=0.0', '=0.5', '=1.0', '=2.0']:
-                # if desired_eta not in subfolder:
-                continue
             algo_data = pd.concat([algo_data, df])
         except Exception as e:
             print("Error processing", log_file)
@@ -75,32 +69,43 @@ def plotter(env, folder, x_axis='step', metrics=all_metrics, exclude_algos=[],
     # Now, loop over all the metrics and plot them individually:
     for metric in metrics:
         fig, ax = plt.subplots(figsize=(12, 8))
-        plt.title(title)
+        # plt.title(title)
+
         # Filter the data to only include this metric:
         metric_data = algo_data[algo_data['tag'] == metric]
+        # filter out any runs that have 'Humanoid' in the name:
+        # metric_data = metric_data[~metric_data['algo'].str.contains('Humanoid')]
+        
         if not metric_data.empty:
             print(f"Plotting {metric}...")
             # Append the number of runs to the legend for each algo:
             algo_runs = metric_data.groupby('algo')['run'].nunique()
             for algo, runs in algo_runs.items():
-                metric_data.loc[metric_data['algo'] == algo, 'algo'] = f"{algo}"# ({runs} runs)"
+                # replace "eta" with "$\eta$":
+                algo = algo.replace('eta', r'$\eta$')
+                metric_data.loc[metric_data['algo'] == algo, 'algo'] = f"{algo} ({runs} runs)"
             # make a color palette that starts with black then uses the default color cycle:
             colors = sns.color_palette(n_colors=len(algo_runs)-1)
             colors = colors[0:1] + ['black'] + colors[1:]
             # sort by algo name:
             metric_data = metric_data.sort_values('algo')
 
-            sns.lineplot(data=metric_data, x='step', y='value', hue='algo', palette=colors, lw=5)
-            if metric == 'rollout/avg_entropy':
-                plt.yscale('log')
+            # sns.lineplot(data=metric_data, x='step', y='value', hue='algo', palette=colors, lw=5)
+            # collapse the metric_data by taking mean over training time and plotting as one point:
+            avg_values = [
+                metric_data[metric_data['algo']==key]['value'].mean()
+                for key in algo_runs.keys()]
+            std_values = [
+                metric_data[metric_data['algo']==key]['value'].std() / np.sqrt(algo_runs[key])
+                for key in algo_runs.keys()]
+            
+            keys = [float(key.split('=')[-1]) for key in algo_runs.keys()]
+            # sort both lists by keys:
+            keys, avg_values, std_values = zip(*sorted(zip(keys, avg_values, std_values)))
+            plt.plot(keys, avg_values, 'o-', color='orange', markersize=20, lw=5)
+            plt.fill_between(keys, np.array(avg_values)-np.array(std_values), np.array(avg_values)+np.array(std_values), color='orange', alpha=0.3)
+            plt.xscale('symlog')
 
-            try:
-                name = metrics_to_ylabel[metric]
-            except KeyError:
-                print("Add metric to metrics_to_ylabel dict.")
-
-            # Put legend under the plot outside:
-            plt.legend(loc='upper left', ncol=1, borderaxespad=0.)
             # strip the title from the values in legend:
             handles, labels = plt.gca().get_legend_handles_labels()
             labels = []
@@ -108,7 +113,7 @@ def plotter(env, folder, x_axis='step', metrics=all_metrics, exclude_algos=[],
                 label = handle.get_label()
                 try:
                     # labels.append(label.split(env + '-')[-1])
-                    labels.append(label.split('shape_')[-1].replace('eta', r'$\eta$'))
+                    labels.append(label.split('shape_')[-1])
                     print(labels)
                 except TypeError:
                     labels.append(label)
@@ -119,36 +124,22 @@ def plotter(env, folder, x_axis='step', metrics=all_metrics, exclude_algos=[],
                 # Remove the number of runs:
                 # labels = [label.split(' (')[0] for label in labels]
             # labels = [label.split(title+'-')[-1] for label in labels]
-            plt.gca().legend(handles=handles, labels=labels, loc='upper left')
-
+            ax.yaxis.tick_right()
+            ax.yaxis.set_label_position("right")
             plt.xlim(xlim)
             plt.ylim(ylim)
-            plt.xlabel('Environment Steps')
-            plt.ylabel(name)
+            # increase x tick fontsize
+            plt.xticks(fontsize=32)
+            plt.yticks(fontsize=32)
+
+            plt.yticks([-1000, -600, -200])
+            plt.xlabel(r'Shape scale, $\eta$', fontsize=38)
+            plt.ylabel('Mean Training Reward', fontsize=38)
+            # turn off the grid:
+            plt.grid(False)
 
             plt.tight_layout()
-            # insert the eta-sets image in bottom right corner:
-            inset_img = plt.imread('/home/jacob/Desktop/Github/ShapedRL/pend-logs/eta-sens-Pendulum-v1.png')
-
-            plt.tight_layout()
-            from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-            # Add an inset axes for the image
-            inset_ax = inset_axes(
-                ax,  # Reference to the main axis
-                width="45%",  # Width of the inset (as a percentage of the main plot)
-                height="45%",  # Height of the inset
-                loc="lower right",  # Position: "upper left", "lower right", etc.
-                borderpad=0.1,  # Padding from the border
-            )
-            # shift inset ax down a bit:
-            # inset_ax.set_position([0.5, 0.3, 0.5, 0.5])
-            
-            # Display the image in the inset axis
-            inset_ax.imshow(inset_img)
-            inset_ax.axis("off")  # Turn off axis for the inset image
-
-
-            plt.savefig(os.path.join(folder, f"{metric.split('/')[-1]}-{env}.png"), dpi=300)
+            plt.savefig(os.path.join(folder, f"eta-sens-{env}.png"), dpi=500)
             plt.close()
         else:
             print("No data to plot.")
@@ -158,7 +149,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-e', '--env', type=str, default='MountainCar-v0')
+    parser.add_argument('-e', '--env', type=str, default='Pendulum-v1')
     args = parser.parse_args()
     env = args.env
 
@@ -168,7 +159,7 @@ if __name__ == "__main__":
     # plotter(folder=folder, metrics=['eval/avg_reward'], ylim=(0, 510), exclude_algos=['CartPole-v1-U','CartPole-v1-Umin',  'CartPole-v1-Ured', 'CartPole-v1-Umean', 'CartPole-v1-Umse-b02', ])
     # plotter(folder=folder, metrics=['rollout/ep_reward'], ylim=(0, 510), exclude_algos=['CartPole-v1-U','CartPole-v1-Umin', 'CartPole-v1-Ured', 'CartPole-v1-Umean', 'CartPole-v1-Umse-b02', ])
 
-    plotter(env=env, folder=folder, metrics=['eval/mean_reward'], title=env, xlim=(0, 10_000))
+    plotter(env=env, folder=folder, metrics=['eval/mean_reward'], title=env)#, xlim=(0, 10_000))
     # plotter(env=env, folder=folder, metrics=['rollout/ep_reward'])
     # plotter(env=env, folder=folder, metrics=['rollout/avg_entropy'], exclude_algos=['Acrobot-v1-U', 'Acrobot-v1-SQL'], title=r'Relative Entropy $\mathrm{KL}\left(\pi|\pi_0\right)$')
 

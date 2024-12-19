@@ -1,7 +1,11 @@
 batch_size: 256
 buffer_size: 200_000
-gradient_steps: 1
+gamma: 0.98
+gradient_steps: -1
 learning_rate: 0.001
-learning_starts: 10000
+learning_starts: 0
 train_freq: 1
 shape_scale: 1.0
+
+
+

@@ -22,7 +22,7 @@ env_to_steps = {
     'Swimmer-v4': 5000,
     'Ant-v4': 1_000_000,
     'Humanoid-v4': 2_000_000,
-    'Pendulum-v1': 60_000,
+    'Pendulum-v1': 20_000,
 }
 
 env_to_logfreq = {
@@ -30,7 +30,7 @@ env_to_logfreq = {
     'Swimmer-v4': 5000,
     'Ant-v4': 2500,
     'Humanoid-v4': 5000,
-    'Pendulum-v1': 2500,
+    'Pendulum-v1': 200,
 }
 
 algo_to_agent = {
@@ -40,7 +40,7 @@ algo_to_agent = {
 }
 
 
-def run(env_str, algo, hparams, total_timesteps, log_freq, device='cuda', log_dir="./runs"):
+def run(env_str, algo, hparams, total_timesteps, log_freq, device='cuda', log_dir="./pend-logs"):
     env_kwargs = {}
     print(env_str)
     print(hparams)
@@ -67,7 +67,7 @@ def run(env_str, algo, hparams, total_timesteps, log_freq, device='cuda', log_di
         policy = "MlpPolicy"
 
     eval_callback = EvalCallback(eval_env, n_eval_episodes=5,
-                    log_path=f'./runs/',
+                    log_path=f'./pend-logs/',
                     eval_freq=log_freq,
                     deterministic=True,
                     verbose=1,)
@@ -86,7 +86,7 @@ def run(env_str, algo, hparams, total_timesteps, log_freq, device='cuda', log_di
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--do_shape", action='store_true')
-    parser.add_argument("-e", "--env", type=str, default="Ant-v4")
+    parser.add_argument("-e", "--env", type=str, default="Pendulum-v1")
     parser.add_argument("-a", "--algo", type=str, default="TD3")
     parser.add_argument("-c", "--count", type=int, default=1)
     parser.add_argument("--eta", type=float, default=1.0)
@@ -98,8 +98,8 @@ if __name__ == "__main__":
     with open(f'hparams/{env_id}/{algo}.yaml') as f:
         hparams = yaml.load(f, yaml.FullLoader)
 
-    total_timesteps = env_to_steps.get(env_id, 1_000_000)
-    log_freq = env_to_logfreq.get(env_id, 1000)
+    total_timesteps = env_to_steps.get(env_id, 20_000)
+    log_freq = env_to_logfreq.get(env_id, 200)
     hparams['do_shape'] = do_shape
     hparams['shape_scale'] = args.eta
     for _ in range(args.count):
