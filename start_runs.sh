@@ -12,12 +12,15 @@ then
   for i in $(seq 1 $N_PARALLEL);
   do
     python run.py --count=1 --algo=$ALGO --env=$ENVNAME --eta=0.0 &
+    # wait to make sure the runs don't try to write to the same log directory
+    sleep 0.5
   done
 # shaped
 else
   for i in $(seq 1 $N_PARALLEL);
   do
     python run.py --count=1 --algo=$ALGO --env=$ENVNAME --do_shape --eta=$ETA &
+    sleep 0.5
   done
 fi
 wait

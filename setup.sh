@@ -8,4 +8,4 @@ pip install -r requirements.txt
  mv Shaped* algos/
  mv Models.py algos/
  mv BaseAgent.py algos/
- sudo chmod +x ./start_vastai_runs.sh
+ sudo chmod +x ./start_runs.sh

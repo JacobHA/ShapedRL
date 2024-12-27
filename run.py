@@ -23,6 +23,7 @@ env_to_steps = {
     'Ant-v4': 1_000_000,
     'Humanoid-v4': 2_000_000,
     'Pendulum-v1': 60_000,
+    'Reacher-v4': 30_000,
 }
 
 env_to_logfreq = {
@@ -76,9 +77,9 @@ def run(env_str, algo, hparams, total_timesteps, log_freq, device='cuda', log_di
                     verbose=4, device=device, 
                     tensorboard_log=log_dir,
                     )
-    baseline_str = 'baseline' if not hparams['do_shape'] else 'shape_eta=' + str(hparams['shape_scale'])
+    baseline_str = 'eta=0.0' if not hparams['do_shape'] else 'eta=' + str(hparams['shape_scale'])
     model.learn(total_timesteps, log_interval=log_freq,
-        callback=eval_callback, tb_log_name=f"{algo}{env_id}{baseline_str}"
+        callback=eval_callback, tb_log_name=f"{algo}{env_str}{baseline_str}"
     )
     # model.learn(total_timesteps, log_interval=10, callback=eval_callback, tb_log_name="DQN"+env_str+f'-det={det}')
 
@@ -86,7 +87,7 @@ def run(env_str, algo, hparams, total_timesteps, log_freq, device='cuda', log_di
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--do_shape", action='store_true')
-    parser.add_argument("-e", "--env", type=str, default="Ant-v4")
+    parser.add_argument("-e", "--env", type=str, default="Reacher-v4")
     parser.add_argument("-a", "--algo", type=str, default="TD3")
     parser.add_argument("-c", "--count", type=int, default=1)
     parser.add_argument("--eta", type=float, default=1.0)
