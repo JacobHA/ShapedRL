@@ -8,9 +8,9 @@ python experiment.py
 ```
 
 # TODOs:
-- [ ] Fix SAC/TD3 classes for sampling continuous actions to calculate V(s) and V(s')
+- [x] Fix TD3 classes for sampling continuous actions to calculate V(s) and V(s')
 - [x] Automatically choose the sweep config.yml file based on model used
-- [ ] Clean up sweep id configuration
+- [x] Clean up sweep id configuration
 - [x] Clean up eval callback 
 
 # Related Work:
@@ -19,5 +19,6 @@ python experiment.py
 - (related to above: https://arxiv.org/abs/2205.07467)
 
 # Future Work / Ideas:
-- For automatically adjusting the learning rate (to min. clipping) or adjust the soft-clip weight parameter:
-- Sec 5 in https://arxiv.org/pdf/1812.05905.pdf
+- (Learned) schedule for eta as training progresses
+- eta(s) - state-dependent theory holds
+- Improve the bounds
