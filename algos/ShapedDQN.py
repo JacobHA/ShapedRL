@@ -65,10 +65,6 @@ class ShapedDQN(DQN):
                     next_v_max, _ = next_q_values.max(dim=1, keepdim=True)
                     dones_mask = 1 if self.no_done_mask else 1 - replay_data.dones
 
-
-                    # TODO: Experiment with weight schedule?
-                    # weight = -0.03#1 #- self.exploration_rate
-
                     rewards += self.shape_scale * (dones_mask * self.gamma * next_v_max - curr_v_max)
 
                 # use online only:
